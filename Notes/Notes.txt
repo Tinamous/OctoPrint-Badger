@@ -1,0 +1,10 @@
+
+apt-get update
+apt-get upgrade 
+
+sudo apt-get install libcups2-dev libcupsimage2-dev g++ cups cups-client
+
+
+
+
+- Linux drivers: http://www.dymo.com/en-US/dymo-label-sdk-and-cups-drivers-for-linux-dymo-label-sdk-cups-linux-p--1#

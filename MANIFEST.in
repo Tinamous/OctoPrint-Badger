@@ -1,0 +1,4 @@
+include README.md
+recursive-include octoprint_Badger/templates *
+recursive-include octoprint_Badger/translations *
+recursive-include octoprint_Badger/static *
