@@ -1,5 +1,5 @@
-#from reportlab.pdfgen import canvas
-#from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import mm
 
 # Printing label using CUPS printing and canvas
 # taken from MakeSpace Badger: https://github.com/Makespace/Badger
@@ -9,10 +9,6 @@ class cupsLabelPrinter():
 		self._settings = settings
 		self._conn = None
 		self._data_folder = data_folder
-
-		# set up page size parameters - 89 x 36 mm
-		self.w = 89 * mm
-		self.h = 36 * mm
 
 	def initialize(self):
 		self._logger.info("Initialize Cups Label Printer")
@@ -63,6 +59,13 @@ class cupsLabelPrinter():
 
 	def print_how_to_register(self):
 		self._logger.info("Cups Label printer printing how to register label...")
+
+		import cups
+
+		# set up page size parameters - 89 x 36 mm
+		# this should be based on the label profile selected.
+		self.w = 89 * mm
+		self.h = 36 * mm
 
 		name = "Please Register"
 		comment = "at http://trovebadger.local or http://10.0.0.xx"
