@@ -27,7 +27,7 @@ class cupsLabelPrinter():
 		self._conn = cups.Connection()
 
 		# test to see if the label printer is installed
-		self._printers = self.conn.getPrinters()
+		self._printers = self._conn.getPrinters()
 
 		for printer in self._printers:
 			self._logger.info("Printers: {0}".format(printer))
@@ -102,6 +102,6 @@ class cupsLabelPrinter():
 			c.save()
 
 			# ... and print it
-			self.conn.printFile("DYMO-LabelWriter-450", self._data_folder + "tagbadge.pdf", "Badge", {})
+			self._conn.printFile("DYMO-LabelWriter-450", self._data_folder + "tagbadge.pdf", "Badge", {})
 		except Exception as e:
 			self._logger.error("Error printing how to register tag. Error: {0}".format(e))
