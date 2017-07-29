@@ -85,7 +85,6 @@ class tagReader():
 			if tag:
 				self._logger.info("Got a tag!!!! TagId: {0}".format(tag))
 
-
 				# Raise the tag seen event.
 				payload = dict(tagId=tag)
 				self._event_bus.fire("RfidTagSeen", payload)

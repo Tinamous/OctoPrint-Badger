@@ -1,10 +1,13 @@
+from .label import shippingLabel, largeAddressLabel
 
 # A dummy label printer
 class nullLabelPrinter():
-	def __init__(self, logger, settings, data_folder):
+	def __init__(self, logger, settings, data_folder, label):
 		self._logger = logger
 		self._settings = settings
 		self._data_folder = data_folder
+		# Label type defined in settings.
+		self._label = label
 
 	def initialize(self):
 		self._logger.info("Initialize null label printer")
@@ -14,10 +17,8 @@ class nullLabelPrinter():
 
 	def print_label(self, user):
 		self._logger.warn("Null Label printer printing label...")
-		self._logger.warn("User: {0}".format(user["name"]))
-		user_settings = user["settings"]
-		user_key_fob = user_settings.get("keyfobId")
-		self._logger.warn("KeyFob: {0}".format(user["name"]))
+		filename = self._label.create_user_label(user)
+		self._logger.warn("User label saved to: {0}".format(filename))
 
 	def print_how_to_register(self):
 		self._logger.warn("Null Label printer printing how to register label...")
@@ -25,3 +26,6 @@ class nullLabelPrinter():
 		hostname = socket.gethostname()
 		host = socket.gethostbyname(hostname)
 		self._logger.warn("Null Label printer hostname: {0}, host: {1}".format(hostname, host))
+
+		filename = self._label.create_register_label()
+		self._logger.warn("Register label saved to: {0}".format(filename))

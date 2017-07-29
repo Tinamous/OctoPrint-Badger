@@ -53,7 +53,8 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			canRegister=True,
 			rfidReaderType="Null Tag Reader",
 			readerOptions=["None", "Null Tag Reader", "Micro RWD HiTag2"],
-			labelTemplate="foo",
+			labelTemplate="Shipping",
+			labelTemplates=["Shipping", "Large Address"],
 			printer="Null Printer",
 			printers=self._printers
 		)
@@ -210,7 +211,7 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 
 				self.fire_print_started(filename)
 				data = dict(username=username)
-				self._labeller.print_label (user)
+				self._labeller.print_label(user)
 
 			self.fire_print_done(filename)
 		except Exception as e:

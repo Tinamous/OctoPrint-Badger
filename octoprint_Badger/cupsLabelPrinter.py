@@ -1,14 +1,13 @@
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import mm
-
 # Printing label using CUPS printing and canvas
 # taken from MakeSpace Badger: https://github.com/Makespace/Badger
 class cupsLabelPrinter():
-	def __init__(self, logger, settings, data_folder):
+	def __init__(self, logger, settings, data_folder, label):
 		self._logger = logger
 		self._settings = settings
 		self._conn = None
 		self._data_folder = data_folder
+		# Label type defined in settings.
+		self._label = label
 
 	def initialize(self):
 		self._logger.info("Initialize Cups Label Printer")
@@ -53,62 +52,28 @@ class cupsLabelPrinter():
 
 		return printers
 
-	def print_label(self):
-		import cups
+	# Print the Do Not Hack label
+	def print_label(self, user):
 		self._logger.info("Cups Label printer printing label...")
+		self._logger.info("User: {0}".format(user["name"]))
+		filename = self._label.create_user_label(user)
+		self.print_pdf(filename)
 
+	# Print the "How to register label" for users that are not registered
+	# with the system.
 	def print_how_to_register(self):
 		self._logger.info("Cups Label printer printing how to register label...")
+		filename = self._label.create_register_label()
+		self.print_pdf(filename)
 
-		import cups
-
-		# set up page size parameters - 89 x 36 mm
-		# this should be based on the label profile selected.
-		self.w = 89 * mm
-		self.h = 36 * mm
-
-		name = "Please Register"
-		comment = "at http://trovebadger.local or http://10.0.0.xx"
-
+	def print_pdf(self, filename):
 		try:
-			#####################################################
-			# Use pdfgen to create our badge...
-			#####################################################
-			filename = self._data_folder + "tagbadge.pdf"
-			c = canvas.Canvas(filename, pagesize=(self.w, self.h))
-
-			# Name
-			# Now shrink font until name fits...
-			fontSize = 60
-			nameWidth = c.stringWidth(name, "Helvetica-Bold", 60)
-			if (nameWidth > (self.w * 0.9)):
-				fontSize = fontSize * self.w * 0.9 / nameWidth
-
-			c.setFont("Helvetica-Bold", fontSize)
-			#c.drawCentredString(self.w / 2, 70 - fontSize / 2, name)
-			c.drawString(4, 4, "DO NOT HACK", mode=None)
-			c.drawString(4, 14, name, mode=None)
-
-			# The Comment.
-			c.setFont("Helvetica", 14)
-			c.translate(self.w / 2, 15)
-
-			commentWidth = c.stringWidth(comment, "Helvetica-Bold", 14)
-			if (commentWidth > (self.w * 0.9)):
-				hScale = self.w * 0.9 / commentWidth
-			else:
-				hScale = 1
-
-			c.scale(hScale, 1)
-			c.drawCentredString(0, 0, comment)
-
-			c.showPage()
-			c.save()
-
 			# ... and print it
+			import cups
 			printer = self._settings.get(["printer"])
 			self._logger.info("Printing '{0}' to printer: {1}".format(filename, printer))
 			self._conn.printFile(printer, filename, "Badge", {})
 			self._logger.info("Label was sent to the printer.")
+
 		except Exception as e:
 			self._logger.error("Error printing how to register tag. Error: {0}".format(e))
