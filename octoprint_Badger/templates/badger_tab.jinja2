@@ -1,0 +1,26 @@
+<div class="row-fluid" >
+    <h3>Badger...</h3>
+</div>
+
+<!-- Tab contents when not logged in -->
+<div class="row-fluid" data-bind="visible: notLoggedIn">
+    <p>You need to be logged in to view contact details for Who's Printing.</p>
+
+    <div data-bind="visible: settings.canRegister">
+        <p>Please register if you wish to use Who's Printing to show that you are printing, or to view Who's Printing details.</p>
+
+        <p>By registering you create a user account on this OctoPrint instance. Your name/display name will then be available in the Who's Printing selection box.</p>
+        <p>If you wish to set an email address or password please be aware this instance may be internet accessible and hence those details viewable by anybody that registers.</p>
+
+        <p>You can change your password by logging in and selecting "User Settings" from the navbar user dropdown. Other settings cannot be changed at this time. Please ask the OctoPrint administrator to change them for you.</p>
+
+        <p>Please note this is for one printer only. You will need to register with Who's Printing on every printer's OctoPrint.</p>
+
+        <button class="btn btn-large btn-success" href="#whosprinting_register_dialog" data-toggle="modal" data-target="#whosprinting_register_dialog">Register for Who's Printing</button>
+    </div>
+</div>
+
+<!-- Who's Printing main tab contents when a user is logged in -->
+<div data-bind="visible: loginStateViewModel.isUser">
+    <button type="button" class="btn btn-success" data-bind="click: printLabel">Print Label</button>
+</div>

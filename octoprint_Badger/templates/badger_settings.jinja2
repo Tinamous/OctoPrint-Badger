@@ -1,0 +1,53 @@
+<form class="form-horizontal">
+
+    <h3>RFID Reader</h3>
+    <div class="control-group col-xs-4">
+        <label class="control-label">RFID Reader Type</label>
+        <div class="controls">
+		<div class="input-append">
+			<select data-bind="options: settings.plugins.badger.readerOptions, value: settings.plugins.badger.rfidReaderType" >
+			</select>
+		</div>
+        </div>
+    </div>
+
+    <div class="control-group col-xs-4">
+        <label class="control-label">RFID Comm Port</label>
+        <div class="controls">
+		<div class="input-append">
+			<select data-bind="options: serial_portOptions, value: settings.plugins.badger.rfidComPort" >
+			</select>
+		</div>
+        </div>
+    </div>
+
+
+    <div class="control-group">
+        <label class="control-label">Allow Registration</label>
+        <div class="controls">
+		<div class="input-append">
+			<input type="checkbox" class="input-block-level" data-bind="checked: settings.plugins.badger.canRegister">
+		</div>
+        </div>
+    </div>
+
+    <h3>Label Printing</h3>
+    <div class="control-group">
+        <label class="control-label">Label Template</label>
+        <div class="controls">
+		<div class="input-append">
+			<input type="text" class="input-block-level" data-bind="value: settings.plugins.badger.labelTemplate">
+		</div>
+        </div>
+    </div>
+
+    <div class="control-group col-xs-4">
+        <label class="control-label">Printer</label>
+        <div class="controls">
+		<div class="input-append">
+			<select data-bind="options: settings.plugins.badger.printers, value: settings.plugins.badger.printer" >
+			</select>
+		</div>
+        </div>
+    </div>
+</form>

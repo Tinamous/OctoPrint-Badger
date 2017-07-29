@@ -2,9 +2,51 @@
 apt-get update
 apt-get upgrade 
 
+From: https://community.ubnt.com/t5/UniFi-Wireless/RPI-Dashbutton-Turn-RaspberryPI-with-Dymo-LabelWriter-into-a/td-p/1667513
+
 sudo apt-get install libcups2-dev libcupsimage2-dev g++ cups cups-client
 
 
-
-
 - Linux drivers: http://www.dymo.com/en-US/dymo-label-sdk-and-cups-drivers-for-linux-dymo-label-sdk-cups-linux-p--1#
+
+wget ....
+
+wget https://github.com/BookSwapSteve/OctoPrint-Badger/raw/master/Notes/dymo-cups-drivers-1.4.0.tar.gz
+
+tar xvf dymo-cups-drivers-1.4.0.tar.gz
+cd dymo-cups-drivers-1.4.0/
+sudo ./configure
+sudo make
+sudo make install
+
+# Add Pi user to printers group
+
+sudo usermod -a -G lpadmin pi
+
+---
+Add printer using cups...
+
+Enable cups to be accessed off the pi
+cupsctl --remote-admin
+
+Browse to cups..
+https://octopi.local:631/
+
+Connect Dymo printer.
+
+Add Dymo, set Media size to 11356 (White Name Badge - need to change this to something smaller)
+Print Quality: Barcodes and Graphics)
+
+connection: usb://DYMO/LabelWriter%20450?serial=01010112345600
+
+
+Not appropriate, but...
+git clone https://github.com/Makespace/Badger
+
+# Python imple - before adding plugin.
+
+# Needed for python
+sudo apt-get install python-cups
+
+# See https://pypi.python.org/pypi/pycups
+
