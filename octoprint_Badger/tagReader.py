@@ -2,13 +2,14 @@ import flask
 
 from octoprint.util import RepeatedTimer
 
-# from .microRWDHiTag2Reader import microRWDHiTag2Reader
+from .microRWDHiTag2Reader import microRWDHiTag2Reader
 from .nullTagReader import nullTagReader
 
 class tagReader():
-	def __init__(self, logger, settings):
+	def __init__(self, logger, settings, event_bus):
 		self._logger = logger
 		self._settings = settings
+		self._event_bus = event_bus
 		self._rfidReader = nullTagReader(self._logger)
 		self._check_tags_timer = None
 		self._last_tag = None
@@ -35,7 +36,7 @@ class tagReader():
 		readerType = self._settings.get(['rfidReaderType'])
 		if readerType == "Micro RWD HiTag2":
 			self._logger.info("Initializing Micro RWD HiTag2")
-			# self._rfidReader = microRWDHiTag2Reader(self._logger)
+			self._rfidReader = microRWDHiTag2Reader(self._logger)
 		else:
 			self._logger.info("Using null tag reader")
 			self._rfidReader = nullTagReader(self._logger)
@@ -87,7 +88,7 @@ class tagReader():
 
 				# Raise the tag seen event.
 				payload = dict(tagId=tag)
-				#self._event_bus.fire("RfidTagSeen", payload)
+				self._event_bus.fire("RfidTagSeen", payload)
 				self._last_tag = tag
 			else:
 				# Clear last tag ready for a new one...

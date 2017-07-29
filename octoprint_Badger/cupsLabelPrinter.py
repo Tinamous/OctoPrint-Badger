@@ -77,6 +77,7 @@ class cupsLabelPrinter():
 			filename = self._data_folder + "tagbadge.pdf"
 			c = canvas.Canvas(filename, pagesize=(self.w, self.h))
 
+			# Name
 			# Now shrink font until name fits...
 			fontSize = 60
 			nameWidth = c.stringWidth(name, "Helvetica-Bold", 60)
@@ -84,10 +85,12 @@ class cupsLabelPrinter():
 				fontSize = fontSize * self.w * 0.9 / nameWidth
 
 			c.setFont("Helvetica-Bold", fontSize)
-			c.drawCentredString(self.w / 2, 70 - fontSize / 2, name)
+			#c.drawCentredString(self.w / 2, 70 - fontSize / 2, name)
+			c.drawString(4, 4, "DO NOT HACK", mode=None)
+			c.drawString(4, 14, name, mode=None)
 
+			# The Comment.
 			c.setFont("Helvetica", 14)
-
 			c.translate(self.w / 2, 15)
 
 			commentWidth = c.stringWidth(comment, "Helvetica-Bold", 14)
@@ -106,5 +109,6 @@ class cupsLabelPrinter():
 			printer = self._settings.get(["printer"])
 			self._logger.info("Printing '{0}' to printer: {1}".format(filename, printer))
 			self._conn.printFile(printer, filename, "Badge", {})
+			self._logger.info("Label was sent to the printer.")
 		except Exception as e:
 			self._logger.error("Error printing how to register tag. Error: {0}".format(e))

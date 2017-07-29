@@ -175,7 +175,7 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 	##~~ RFID Tag Handling
 	def initialize_tag_reader(self):
 		self._logger.info("Initialize RFID reader")
-		self._reader = tagReader(self._logger, self._settings)
+		self._reader = tagReader(self._logger, self._settings, self._event_bus)
 		self._reader.initialize()
 
 	##~~ General Implementation
@@ -191,18 +191,49 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		# Find the user this tag belongs to
 		user = self.find_user_from_tag(tagId)
 
-		if (user == None):
-			self._logger.info("Did not find a user for the tag, printing how to register tag.")
-			self._labeller.print_how_to_register()
+		filename = ""
+		try:
+			if (user == None):
+				self._logger.info("Did not find a user for the tag, printing how to register tag.")
+				filename = "HowToRegister"
+				self.fire_print_started(filename)
+				self._labeller.print_how_to_register()
 
-			# Also publish the unknown RFID Tag.
-			pluginData = dict(eventEvent="UnknownRfidTagSeen", eventPayload=payload)
-			self._plugin_manager.send_plugin_message(self._identifier, pluginData)
-			return
+				# Also publish the unknown RFID Tag.
+				pluginData = dict(eventEvent="UnknownRfidTagSeen", eventPayload=payload)
+				self._plugin_manager.send_plugin_message(self._identifier, pluginData)
+			else:
+				# User was found so handle a known user swipping the RFID
+				username = user["name"]
+				self._logger.info("Printing label for {0}.".format(username))
+				filename = username
 
-		# User was found so handle a known user swipping the RFID
-		data = dict(username=user["name"])
-		self._labeller.print_label (user)
+				self.fire_print_started(filename)
+				data = dict(username=username)
+				self._labeller.print_label (user)
+
+			self.fire_print_done(filename)
+		except Exception as e:
+			self._logger.error("Failed to print label. Error: {0}".format(e))
+			self.fire_print_failed(filename)
+
+
+	def fire_print_started(self, filename):
+		data_folder = self.get_plugin_data_folder();
+		payload = dict(name=filename, path=data_folder, origin="local", file=filename + ".gcode")
+		self._event_bus.fire(Events.PRINT_STARTED, payload);
+
+	def fire_print_done(self, filename):
+		data_folder = self.get_plugin_data_folder();
+		payload = dict(name=filename, path=data_folder, origin="local", file=filename + ".gcode", time= time.time())
+		self._event_bus.fire(Events.PRINT_DONE, payload);
+
+	def fire_print_failed(self, filename):
+		data_folder = self.get_plugin_data_folder();
+		payload = dict(name=filename, path=data_folder, origin="local", file= filename + ".gcode")
+		self._event_bus.fire(Events.PRINT_FAILED, payload)
+
+
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
