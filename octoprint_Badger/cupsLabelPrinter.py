@@ -72,8 +72,11 @@ class cupsLabelPrinter():
 			import cups
 			printer = self._settings.get(["printer"])
 			self._logger.info("Printing '{0}' to printer: {1}".format(filename, printer))
-			self._conn.printFile(printer, filename, "Badge", {})
-			self._logger.info("Label was sent to the printer.")
+			job_id = self._conn.printFile(printer, filename, "Badge", {})
+			self._logger.info("Label was sent to the printer. Job id: {0}".format(job_id))
+
+			if job_id == 0:
+				self._logger.error("Label {0} did not print correctly.".format(filename))
 
 		except Exception as e:
 			self._logger.error("Error printing how to register tag. Error: {0}".format(e))

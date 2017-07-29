@@ -53,10 +53,12 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			canRegister=True,
 			rfidReaderType="Null Tag Reader",
 			readerOptions=["None", "Null Tag Reader", "Micro RWD HiTag2"],
-			labelTemplate="Shipping",
-			labelTemplates=["Shipping", "Large Address"],
+			labelTemplate="99014 - Shipping",
+			labelTemplates=["99014 - Shipping", "99012 - Large Address"],
 			printer="Null Printer",
-			printers=self._printers
+			printers=self._printers,
+			# Text X Offset in mm
+			xOffset=0,
 		)
 
 	def on_settings_save(self, data):

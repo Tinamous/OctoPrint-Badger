@@ -2,14 +2,15 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 
 class largeAddressLabel():
-	def __init__(self, logger, data_folder):
+	def __init__(self, logger, data_folder, xOffset):
 		self._logger = logger
 		self._data_folder = data_folder
 
 		# set up page size parameters - 89 x 36 mm
 		# this should be based on the label profile selected.
-		self.w = 89 * mm
-		self.h = 36 * mm
+		self._width = 89 * mm
+		self._height = 36 * mm
+		self._xOffset = xOffset * mm
 
 	# Returns filename of the created label
 	def create_user_label(self, user):
@@ -18,6 +19,7 @@ class largeAddressLabel():
 		user_settings = user["settings"]
 
 		displayName = user_settings.get("displayName")
+
 
 		if not displayName:
 			displayName = username
@@ -39,25 +41,26 @@ class largeAddressLabel():
 			# Use pdfgen to create our badge...
 			#####################################################
 			filename = self._data_folder + "\large-address-donothack.pdf"
-			c = canvas.Canvas(filename, pagesize=(self.w, self.h))
+			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
-			x_align = 5 * mm
+			# Configurable X-Offset to improve alignment
+			x_align = self._xOffset
 
 			# Do Not Hack...
 			c.setFont("Helvetica-Bold", 30)
-			c.drawString(x_align, 24 * mm, "DO NOT HACK!", mode=None)
+			c.drawString(x_align, 30 * mm, "DO NOT HACK!", mode=None)
 
 			# Date Left
 			c.setFont("Helvetica", 12)
 			c.drawString(x_align, 18 * mm, "Date Left:", mode=None)
 			c.setFont("Helvetica-Bold", 12)
-			c.drawString(60 * mm, 18 * mm, "2017-07-29", mode=None)
+			c.drawString((55 + x_align) * mm, 18 * mm, "2017-07-29", mode=None)
 
 			# Remove After
 			c.setFont("Helvetica", 12)
 			c.drawString(x_align, 13 * mm, "Remove After:", mode=None)
 			c.setFont("Helvetica-Bold", 12)
-			c.drawString(60 * mm, 13 * mm, "2017-07-29", mode=None)
+			c.drawString((55 + x_align) * mm, 13 * mm, "2017-07-29", mode=None)
 
 			# Member Details
 			c.setFont("Helvetica-Bold", 10)
@@ -91,8 +94,8 @@ class largeAddressLabel():
 			#####################################################
 			# Use pdfgen to create our badge...
 			#####################################################
-			filename = self._data_folder + "\large-address-tagbadge.pdf"
-			c = canvas.Canvas(filename, pagesize=(self.w, self.h))
+			filename = self._data_folder + "\large-address-register.pdf"
+			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
 			# Name
 			# Now shrink font until name fits...
@@ -127,16 +130,15 @@ class largeAddressLabel():
 			self._logger.error("Error creating register label. Error: {0}".format(e))
 			return None
 
-
 class shippingLabel():
-	def __init__(self, logger, data_folder):
+	def __init__(self, logger, data_folder, xOffset):
 		self._logger = logger
 		self._data_folder = data_folder
 
-		# set up page size parameters - 89 x 36 mm
-		# this should be based on the label profile selected.
-		self.w = 101 * mm
-		self.h = 54 * mm
+		# Label size
+		self._width = 101 * mm
+		self._height = 54 * mm
+		self._xOffset = xOffset * mm
 
 	# Returns filename of the created label
 	def create_user_label(self, user):
@@ -166,9 +168,13 @@ class shippingLabel():
 			# Use pdfgen to create our badge...
 			#####################################################
 			filename = self._data_folder + "\shipping-donothack.pdf"
-			c = canvas.Canvas(filename, pagesize=(self.w, self.h))
+			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
-			x_align = 5 * mm
+			# Configurable X-Offset to improve alignment
+			x_align = self._xOffset
+
+			nameHeight = c.stringHeight("DO NOT HACK", "Helvetica-Bold", 30)
+			self._logger.info("DO Not Hack Height: {0}".format(nameHeight))
 
 			# Do Not Hack...
 			c.setFont("Helvetica-Bold", 30)
@@ -218,15 +224,15 @@ class shippingLabel():
 			#####################################################
 			# Use pdfgen to create our badge...
 			#####################################################
-			filename = self._data_folder + "\shipping-tagbadge.pdf"
-			c = canvas.Canvas(filename, pagesize=(self.w, self.h))
+			filename = self._data_folder + "\shipping-register.pdf"
+			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
 			# Name
 			# Now shrink font until name fits...
 			fontSize = 36
 			nameWidth = c.stringWidth(name, "Helvetica-Bold", 60)
-			if (nameWidth > (self.w * 0.9)):
-				fontSize = fontSize * self.w * 0.9 / nameWidth
+			if (nameWidth > (self.width * 0.9)):
+				fontSize = fontSize * self.width * 0.9 / nameWidth
 
 			c.setFont("Helvetica-Bold", fontSize)
 			#c.drawCentredString(self.w / 2, 70 - fontSize / 2, name)
@@ -234,11 +240,11 @@ class shippingLabel():
 
 			# The Comment.
 			c.setFont("Helvetica", 14)
-			c.translate(self.w / 2, 15)
+			c.translate(self.width / 2, 15)
 
 			commentWidth = c.stringWidth(comment, "Helvetica-Bold", 14)
-			if (commentWidth > (self.w * 0.9)):
-				hScale = self.w * 0.9 / commentWidth
+			if (commentWidth > (self.width * 0.9)):
+				hScale = self.width * 0.9 / commentWidth
 			else:
 				hScale = 1
 

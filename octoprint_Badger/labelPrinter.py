@@ -24,11 +24,12 @@ class labelPrinter():
 
 	def get_label(self):
 		label_template = self._settings.get(["labelTemplate"])
+		xOffset = self._settings.get(["xOffset"])
 
-		if label_template == "Shipping":
-			return shippingLabel(self._logger, self._data_folder)
+		if label_template == "99014 - Shipping":
+			return shippingLabel(self._logger, self._data_folder, xOffset)
 		else:
-			return largeAddressLabel(self._logger, self._data_folder)
+			return largeAddressLabel(self._logger, self._data_folder, xOffset)
 
 
 	def get_printers(self):
