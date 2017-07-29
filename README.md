@@ -1,6 +1,10 @@
 # OctoPrint-Badger
 
-**TODO:** Describe what your plugin does.
+Prints 2D Badges/Labels.
+
+Uses OctoPrint system to allow for "Do No Hack" labels to be printed on a Dymo Label Writer (for MakeSpace) using RFID tags.
+
+Not really used for 3D printing unless you wish to modify and automate to print labels for when a print is finished or something.
 
 ## Setup
 
@@ -9,8 +13,9 @@ or manually using this URL:
 
     https://github.com/Tinamous/OctoPrint-Badger/archive/master.zip
 
-**TODO:** Describe how to install your plugin, if more needs to be done than just installing it via pip or through
-the plugin manager.
+See Notes section on setup.
+* Requires CUPS support.
+* Works best with OctoPrint-Registration plugin to allow users to register
 
 ## Configuration
 
