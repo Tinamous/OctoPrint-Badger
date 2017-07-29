@@ -1,9 +1,10 @@
 
 # A dummy label printer
 class nullLabelPrinter():
-	def __init__(self, logger, settings):
+	def __init__(self, logger, settings, data_folder):
 		self._logger = logger
 		self._settings = settings
+		self._data_folder = data_folder
 
 	def initialize(self):
 		self._logger.info("Initialize null label printer")

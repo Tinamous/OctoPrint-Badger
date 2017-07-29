@@ -162,7 +162,10 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 
 	def initialize_printers(self):
 		self._logger.info("Initialize Labeller")
-		self._labeller = labelPrinter(self._logger, self._settings)
+		data_folder = self.get_plugin_data_folder();
+		self._logger.info("Badger folder: {0}".format(data_folder));
+
+		self._labeller = labelPrinter(self._logger, self._settings, data_folder)
 		self._labeller.initialize();
 
 	def print_label(self):

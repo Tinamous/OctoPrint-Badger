@@ -4,11 +4,11 @@
 # Printing label using CUPS printing and canvas
 # taken from MakeSpace Badger: https://github.com/Makespace/Badger
 class cupsLabelPrinter():
-	def __init__(self, logger, settings):
+	def __init__(self, logger, settings, data_folder):
 		self._logger = logger
 		self._settings = settings
 		self._conn = None
-		self._tempFileDir = "/dev/"
+		self._data_folder = data_folder
 
 		# set up page size parameters - 89 x 36 mm
 		self.w = 89 * mm
@@ -71,7 +71,7 @@ class cupsLabelPrinter():
 			#####################################################
 			# Use pdfgen to create our badge...
 			#####################################################
-			c = canvas.Canvas(self._tempFileDir + "tagbadge.pdf", pagesize=(self.w, self.h))
+			c = canvas.Canvas(self._data_folder + "tagbadge.pdf", pagesize=(self.w, self.h))
 
 			# Now shrink font until name fits...
 			fontSize = 60
@@ -99,6 +99,6 @@ class cupsLabelPrinter():
 			c.save()
 
 			# ... and print it
-			self.conn.printFile("DYMO-LabelWriter-450", self._tempFileDir + "tagbadge.pdf", "Badge", {})
+			self.conn.printFile("DYMO-LabelWriter-450", self._data_folder + "tagbadge.pdf", "Badge", {})
 		except Exception as e:
 			self._logger.error("Error printing how to register tag. Error: {0}".format(e))
