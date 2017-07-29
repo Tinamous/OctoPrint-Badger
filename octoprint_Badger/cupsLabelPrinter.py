@@ -74,7 +74,8 @@ class cupsLabelPrinter():
 			#####################################################
 			# Use pdfgen to create our badge...
 			#####################################################
-			c = canvas.Canvas(self._data_folder + "tagbadge.pdf", pagesize=(self.w, self.h))
+			filename = self._data_folder + "tagbadge.pdf"
+			c = canvas.Canvas(filename, pagesize=(self.w, self.h))
 
 			# Now shrink font until name fits...
 			fontSize = 60
@@ -102,6 +103,8 @@ class cupsLabelPrinter():
 			c.save()
 
 			# ... and print it
-			self._conn.printFile("DYMO-LabelWriter-450", self._data_folder + "tagbadge.pdf", "Badge", {})
+			printer = self._settings.get(["printer"])
+			self._logger.info("Printing '{0}' to printer: {1}".format(filename, printer))
+			self._conn.printFile(printer, filename, "Badge", {})
 		except Exception as e:
 			self._logger.error("Error printing how to register tag. Error: {0}".format(e))
