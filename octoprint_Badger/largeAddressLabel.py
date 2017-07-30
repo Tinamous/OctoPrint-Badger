@@ -5,7 +5,7 @@ import datetime
 
 # Defines the smaller label (89x36). Dymo: 99012
 class LargeAddressLabel():
-	def __init__(self, logger, data_folder, xOffset, date_format):
+	def __init__(self, logger, data_folder, x_offset, y_offset, date_format):
 		self._logger = logger
 		self._data_folder = data_folder
 		self._date_format = date_format
@@ -14,7 +14,8 @@ class LargeAddressLabel():
 		# this should be based on the label profile selected.
 		self._width = 89 * mm
 		self._height = 36 * mm
-		self._xOffset = xOffset * mm
+		self._x_offset = x_offset * mm
+		self._y_offset = y_offset * mm
 
 	# Returns filename of the created label
 	def create_user_label(self, user, remove_after, label_serial_number):
@@ -47,10 +48,10 @@ class LargeAddressLabel():
 			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
 			# Configurable X-Offset to improve alignment
-			x_align = self._xOffset
+			x_align = self._x_offset
 
 			# Do Not Hack...
-			yPosition = 26 * mm
+			yPosition = 26 * mm + self._y_offset
 			text = "DO NOT HACK"
 			c.setFont("Helvetica-Bold", 30)
 			# So we can right align the dates to this.
@@ -60,7 +61,7 @@ class LargeAddressLabel():
 			c.drawString(x_align, yPosition, text, mode=None)
 
 			# Date Left
-			yPosition = 18 * mm
+			yPosition = 18 * mm + self._y_offset
 			c.setFont("Helvetica", 12)
 			c.drawString(x_align, yPosition, "Date Left:", mode=None)
 
@@ -71,7 +72,7 @@ class LargeAddressLabel():
 			c.drawString(x_position, yPosition, date_now, mode=None)
 
 			# Remove After
-			yPosition = 13 * mm
+			yPosition = 13 * mm + self._y_offset
 			c.setFont("Helvetica", 12)
 			c.drawString(x_align, yPosition, "Remove After:", mode=None)
 
@@ -83,17 +84,17 @@ class LargeAddressLabel():
 
 			# Member Details
 			# Name
-			yPosition = 7 * mm
+			yPosition = 7 * mm + self._y_offset
 			c.setFont("Helvetica-Bold", 10)
 			c.drawString(x_align, yPosition, displayName, mode=None)
 
 			# Contact
-			yPosition = 2 * mm
+			yPosition = 2 * mm + self._y_offset
 			c.setFont("Helvetica", 10)
 			c.drawString(x_align, yPosition, contact, mode=None)
 
 			# Item Details
-			yPosition = 0 * mm
+			yPosition = 0 * mm + self._y_offset
 			#item_number = "Item #: {0}".format(label_serial_number)
 			#c.drawString(x_align, yPosition * mm, item_number, mode=None)
 

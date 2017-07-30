@@ -65,15 +65,20 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			printers=self._printers,
 			# Text X Offset in mm (Labels typically have a min of 5mm left margin
 			xOffset=6,
+			yOffset=0
 		)
 
 	def on_settings_save(self, data):
-		self._logger.info("on_settings_save")
+		self._logger.info("Badger saving settings...")
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
-		# reinitialize the printers to handle possible changes
-		self.initialize_printers()
-		# Handle posisble port or RFID reader changed
-		self.initialize_tag_reader()
+
+		try:
+			# reinitialize the printers to handle possible changes
+			self.initialize_printers()
+			# Handle posisble port or RFID reader changed
+			self.initialize_tag_reader()
+		except Exception as e:
+			self._loger.error("Failed to initialize after settings change")
 
 	def get_template_configs(self):
 		return [

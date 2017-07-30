@@ -5,7 +5,7 @@ import datetime
 
 # Defines the large label (100x54). Dymo: 99014
 class ShippingLabel():
-	def __init__(self, logger, data_folder, xOffset, date_format):
+	def __init__(self, logger, data_folder, x_offset, y_offset, date_format):
 		self._logger = logger
 		self._data_folder = data_folder
 		self._date_format = date_format
@@ -13,7 +13,8 @@ class ShippingLabel():
 		# Label size
 		self._width = 101 * mm
 		self._height = 54 * mm
-		self._xOffset = xOffset * mm
+		self._x_offset = x_offset * mm
+		self._y_offset = y_offset * mm
 
 	# Returns filename of the created label
 	def create_user_label(self, user, remove_after, label_serial_number):
@@ -46,7 +47,7 @@ class ShippingLabel():
 			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
 			# Configurable X-Offset to improve alignment
-			x_align = self._xOffset
+			x_align = self._x_offset
 
 			nameHeight = c.stringHeight("DO NOT HACK", "Helvetica-Bold", 30)
 			self._logger.info("DO Not Hack Height: {0}".format(nameHeight))
