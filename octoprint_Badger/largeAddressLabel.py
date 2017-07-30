@@ -13,7 +13,7 @@ class LargeAddressLabel():
 		# set up page size parameters - 89 x 36 mm
 		# this should be based on the label profile selected.
 		self._width = 89 * mm
-		self._height = 36 * mm
+		self._height = 42 * mm # 11356 address label. 99012 is 36mm
 		self._x_offset = x_offset * mm
 		self._y_offset = y_offset * mm
 
