@@ -121,7 +121,7 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			#TODO: Add the attributes
 		return jobs_list
 
-		return flask.jsonify(jobs=jobs)
+		return flask.jsonify(dict(jobs=jobs_list))
 
 	# API POST command options
 	def get_api_commands(self):
