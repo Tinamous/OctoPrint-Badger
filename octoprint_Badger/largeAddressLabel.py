@@ -13,7 +13,10 @@ class LargeAddressLabel():
 		# set up page size parameters - 89 x 36 mm
 		# this should be based on the label profile selected.
 		self._width = 89 * mm
-		self._height = 42 * mm # 11356 address label. 99012 is 36mm
+		# 99012 is 36mm
+		self._height = 36 * mm
+		# 11356 (Name Badge) is 42mm
+		#self._height = 42 * mm
 		self._x_offset = x_offset * mm
 		self._y_offset = y_offset * mm
 
@@ -61,7 +64,7 @@ class LargeAddressLabel():
 			c.drawString(x_align, yPosition, text, mode=None)
 
 			# Date Left
-			yPosition = 18 * mm + self._y_offset
+			yPosition = 19 * mm + self._y_offset
 			c.setFont("Helvetica", 12)
 			c.drawString(x_align, yPosition, "Date Left:", mode=None)
 
@@ -72,7 +75,7 @@ class LargeAddressLabel():
 			c.drawString(x_position, yPosition, date_now, mode=None)
 
 			# Remove After
-			yPosition = 13 * mm + self._y_offset
+			yPosition = 14 * mm + self._y_offset
 			c.setFont("Helvetica", 12)
 			c.drawString(x_align, yPosition, "Remove After:", mode=None)
 
@@ -84,19 +87,21 @@ class LargeAddressLabel():
 
 			# Member Details
 			# Name
-			yPosition = 7 * mm + self._y_offset
+			yPosition = 8 * mm + self._y_offset
 			c.setFont("Helvetica-Bold", 10)
 			c.drawString(x_align, yPosition, displayName, mode=None)
 
+			# Item Details (RHS of member)
+			c.setFont("Helvetica", 10)
+			item_number = "#: {0}".format(label_serial_number)
+			x_position = self.get_right_align_x_position(c, item_number, "Helvetica", 10, do_not_hack_width)
+			c.drawString(x_position, yPosition, item_number, mode=None)
+
 			# Contact
-			yPosition = 2 * mm + self._y_offset
+			yPosition = 3 * mm + self._y_offset
 			c.setFont("Helvetica", 10)
 			c.drawString(x_align, yPosition, contact, mode=None)
 
-			# Item Details
-			yPosition = 0 * mm + self._y_offset
-			#item_number = "Item #: {0}".format(label_serial_number)
-			#c.drawString(x_align, yPosition * mm, item_number, mode=None)
 
 			c.showPage()
 			c.save()
