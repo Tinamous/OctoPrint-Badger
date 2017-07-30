@@ -102,9 +102,15 @@ class CupsLabelPrinter():
 		self._logger.warn("Cups printer returning jobs...")
 		jobs = self._conn.getJobs()
 		self._logger.warn("Got jobs: {0}".format(jobs))
+		jobs_list = []
 		for job in jobs:
 			self._logger.info("Job:{0}".format(job))
-		return jobs
+			self._logger.info("Job url: {0}".format(jobs[job]["job-uri"]))
+			attributes = self._conn.getJobAttributes(job, ["job-state","job-cancel-after","job-media-progress","job-printer-state-message","job-printer-state-reasons"])
+			# See https://www.cups.org/doc/spec-ipp.html
+			self._logger.info("Attributes:{0}".format(attributes))
+			jobs_list.append(dict(jobId=job, jobUri=jobs[job]["job-uri"]))
+		return jobs_list
 
 	def cancel_old_print_jobs(self):
 		self._logger.warn("Cups printer cancel old print jobs (Not implemente)...")

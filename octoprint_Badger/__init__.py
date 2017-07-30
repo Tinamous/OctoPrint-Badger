@@ -115,6 +115,11 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 
 		# TODO: handle more than just the one get request option.
 		jobs = self._labeller.get_print_queue()
+		jobs_list = []
+		for job in jobs:
+			jobs_list.append(dict(jobId=job, jobUri=jobs[job]["job-uri"]))
+			#TODO: Add the attributes
+		return jobs_list
 
 		return flask.jsonify(jobs=jobs)
 
