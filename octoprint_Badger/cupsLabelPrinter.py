@@ -97,9 +97,11 @@ class CupsLabelPrinter():
 		self._conn.cancelAllJobs()
 		self._logger.warn("Cups printer queue cleared.")
 
+
 	def get_print_queue(self):
 		self._logger.warn("Cups printer returning jobs...")
 		jobs = self._conn.getJobs()
+		self._logger.warn("Got jobs: {0}".format(jobs))
 		for job in jobs:
 			self._logger.info("Job:{0}".format(job))
 		return jobs

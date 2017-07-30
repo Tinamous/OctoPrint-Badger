@@ -112,11 +112,11 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 
 	def on_api_get(self, request):
 		self._logger.info("on_api_get")
-		# getPrintQueue
-		self._logger.info("API Request: {}".format(request))
-		#sensorData = self.getPiPowerValues()
 
-		return flask.jsonify(jobs=dict(jobId=2))
+		# TODO: handle more than just the one get request option.
+		jobs = self._labeller.get_print_queue()
+
+		return flask.jsonify(jobs=jobs)
 
 	# API POST command options
 	def get_api_commands(self):

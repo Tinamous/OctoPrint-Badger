@@ -62,12 +62,22 @@ class LabelPrinter():
 
 	def clear_print_queue(self):
 		self._logger.warn("Clearing the print queue...")
-		self._actualLabelPrinter.clear_print_queue()
+		try:
+			self._actualLabelPrinter.clear_print_queue()
+		except Exception as e:
+			self._logger.error("Error clearing the print queue: {0}".format(e))
 
 	def get_print_queue(self):
-		return self._actualLabelPrinter.get_print_queue()
+		try:
+			return self._actualLabelPrinter.get_print_queue()
+		except Exception as e:
+			self._logger.error("Error getting the print queue: {0}".format(e))
+			return []
 
 	def cancel_old_print_jobs(self):
-		self._logger.warn("Cancelling old print jobs...")
-		if not self._actualLabelPrinter == None:
-			return self._actualLabelPrinter.cancel_old_print_jobs()
+		try:
+			self._logger.warn("Cancelling old print jobs...")
+			if not self._actualLabelPrinter == None:
+				return self._actualLabelPrinter.cancel_old_print_jobs()
+		except Exception as e:
+			self._logger.error("Error cancelling old print jobs: {0}".format(e))
