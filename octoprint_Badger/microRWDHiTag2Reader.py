@@ -2,9 +2,10 @@ import serial
 import logging
 import logging.handlers
 
+# RFID tag reader for RWD devices.
 # Clever bits taken from https://github.com/Makespace/Badger/blob/master/tagreader4.py
 # For RWD tag reader.
-class microRWDHiTag2Reader():
+class MicroRWDHiTag2Reader():
 	def __init__(self, logger):
 		self._logger = logger
 		self.serial_port = None

@@ -12,5 +12,16 @@
 
 <!-- Who's Printing main tab contents when a user is logged in -->
 <div data-bind="visible: loginStateViewModel.isUser">
-    <button type="button" class="btn btn-success" data-bind="click: printLabel">Print Label</button>
+    <h4>Member Do Not Hack Labels</h4>
+    <div>
+        <button type="button" class="btn btn-success" data-bind="click: printDoNotHack">Print Do Not Hack</button>
+    </div>
+
+    <h4>General Text Labels</h4>
+    <div>
+        <div>
+            <textarea cols="100" rows="8" data-bind="value:textBlock"></textarea>
+        </div>
+        <button type="button" class="btn btn-success" data-bind="click: printTextBlock">Print Text</button>
+    </div>
 </div>

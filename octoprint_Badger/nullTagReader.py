@@ -2,8 +2,8 @@
 import logging
 import logging.handlers
 
-# Adapted from  https://github.com/Makespace/Badger/blob/master/tagreader4.py
-class nullTagReader():
+# Null tag reader that never returns a tag, used when no tag reader is available on the system
+class NullTagReader():
 	def __init__(self, logger):
 		self._logger = logger
 

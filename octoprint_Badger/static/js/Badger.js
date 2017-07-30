@@ -15,6 +15,8 @@ $(function() {
         self.settingsViewModel = parameters[1];
         self.printer = parameters[2];
 
+        self.textBlock = ko.observable("");
+
         self.notLoggedIn = ko.computed(function() {
             return !self.loginStateViewModel.isUser();
         })
@@ -49,10 +51,22 @@ $(function() {
             //self.getWhosPrinting();
         };
 
-        self.printLabel = function() {
-            console.log("Requesting print label")
+        self.tagSeen = function() {
+            console.log("Requesting print Do Not Hack Label")
             var payload = { tagId:'12345678' };
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintLabel", payload, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "TagSeen", payload, {});
+        };
+
+        self.printDoNotHack = function() {
+            console.log("Requesting print Do Not Hack Label")
+            var payload = { tagId:'12345678' };
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintDoNotHack", payload, {});
+        };
+
+        self.printTextBlock = function() {
+            console.log("Requesting print Do Not Hack Label")
+            var payload = { text:self.textBlock() };
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintText", payload, {});
         };
     }
 

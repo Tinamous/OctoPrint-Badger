@@ -1,12 +1,12 @@
+
 # Printing label using CUPS printing and canvas
 # taken from MakeSpace Badger: https://github.com/Makespace/Badger
-class cupsLabelPrinter():
+class CupsLabelPrinter():
 	def __init__(self, logger, settings, data_folder, label):
 		self._logger = logger
 		self._settings = settings
 		self._conn = None
 		self._data_folder = data_folder
-		# Label type defined in settings.
 		self._label = label
 
 	def initialize(self):
@@ -53,10 +53,15 @@ class cupsLabelPrinter():
 		return printers
 
 	# Print the Do Not Hack label
-	def print_label(self, user):
-		self._logger.info("Cups Label printer printing label...")
+	def print_do_not_hack_label(self, user, remove_after):
+		self._logger.info("Cups Label printer printing DO NOT HACK label...")
 		self._logger.info("User: {0}".format(user["name"]))
-		filename = self._label.create_user_label(user)
+		filename = self._label.create_user_label(user, remove_after)
+		self.print_pdf(filename)
+
+	def print_text_label(self, text):
+		self._logger.info("Cups Label printer printing text label...")
+		filename = self._label.create_text_label(text)
 		self.print_pdf(filename)
 
 	# Print the "How to register label" for users that are not registered
