@@ -163,9 +163,9 @@ class LargeAddressLabel():
 			# Setup the contents of the label.
 			import socket
 			hostname = socket.gethostname() + ".local"
-			host = socket.gethostbyname(hostname )
-			at_address1 = "at http://{0}"
-			at_address2 = "or http://{1}".format(hostname, host)
+			host = socket.gethostbyname(hostname)
+			at_address1 = "at http://{0}".format(hostname)
+			at_address2 = "or http://{0}".format(host)
 
 			#####################################################
 			# Use pdfgen to create our badge...
