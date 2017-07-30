@@ -2,20 +2,17 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 
 import datetime
+from .SuperLabel import SuperLabel
 
 # Defines the large label (100x54). Dymo: 99014
-class ShippingLabel():
+class ShippingLabel(SuperLabel):
 	def __init__(self, logger, data_folder, x_offset, y_offset, date_format):
-		self._logger = logger
-		self._data_folder = data_folder
-		self._date_format = date_format
-
-		# Label size
+		SuperLabel.__init__(self, logger, data_folder, x_offset, y_offset, date_format)
+		# Label size (for 99014 Label)
 		self._width = 101 * mm
 		self._height = 54 * mm
-		self._x_offset = x_offset * mm
-		self._y_offset = y_offset * mm
 
+	# Creates a members Do Not Hack label
 	# Returns filename of the created label
 	def create_user_label(self, user, remove_after, label_serial_number):
 		self._logger.info("User: {0}".format(user["name"]))
@@ -87,82 +84,4 @@ class ShippingLabel():
 			return filename
 		except Exception as e:
 			self._logger.error("Error creating user label. Error: {0}".format(e))
-			return None
-
-	def create_text_label(self, text):
-
-		# TODO: text lines need to be split
-		# into individual drawString lines
-		# and moved down the label
-
-		try:
-			# Setup the contents of the label.
-			filename = self._data_folder + "\large-address-text.pdf"
-			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
-
-			c.setFont("Helvetica", 14)
-			commentWidth = c.stringWidth(text, "Helvetica", 14)
-			if (commentWidth > (self._width * 0.9)):
-				hScale = self._width * 0.9 / commentWidth
-			else:
-				hScale = 1
-
-			c.scale(hScale, 1)
-			c.drawString(4 * mm, 4 * mm, text, mode=None)
-
-			c.showPage()
-			c.save()
-
-			return filename
-		except Exception as e:
-			self._logger.error("Error creating text label. Error: {0}".format(e))
-			return None
-
-	# Returns filename of the created label
-	def create_register_label(self, fob_id):
-		try:
-			# Setup the contents of the label.
-			import socket
-			hostname = socket.gethostname()
-			host = socket.gethostbyname(hostname)
-			comment = "at http://{0}.local or http://{1}".format(hostname, host)
-			name = "Please Register"
-
-			#####################################################
-			# Use pdfgen to create our badge...
-			#####################################################
-			filename = self._data_folder + "\shipping-register.pdf"
-			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
-
-			# Name
-			# Now shrink font until name fits...
-			fontSize = 36
-			nameWidth = c.stringWidth(name, "Helvetica-Bold", 60)
-			if (nameWidth > (self.width * 0.9)):
-				fontSize = fontSize * self.width * 0.9 / nameWidth
-
-			c.setFont("Helvetica-Bold", fontSize)
-			#c.drawCentredString(self.w / 2, 70 - fontSize / 2, name)
-			c.drawString(4 * mm, 4 * mm, name, mode=None)
-
-			# The Comment.
-			c.setFont("Helvetica", 14)
-			c.translate(self.width / 2, 15)
-
-			commentWidth = c.stringWidth(comment, "Helvetica-Bold", 14)
-			if (commentWidth > (self.width * 0.9)):
-				hScale = self.width * 0.9 / commentWidth
-			else:
-				hScale = 1
-
-			c.scale(hScale, 1)
-			c.drawString(4 * mm, 14 * mm, comment, mode=None)
-			#c.drawCentredString(0, 0, comment)
-
-			c.showPage()
-			c.save()
-
-			return filename
-		except Exception as e:
-			self._logger.error("Error creating register label. Error: {0}".format(e))
 			return None

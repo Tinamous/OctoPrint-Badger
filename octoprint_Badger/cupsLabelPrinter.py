@@ -59,6 +59,12 @@ class CupsLabelPrinter():
 		filename = self._label.create_user_label(user, remove_after, label_serial_number)
 		self.print_pdf(filename)
 
+	def print_member_box_label(self, user):
+		self._logger.info("Cups Label printer printing members box label...")
+		self._logger.info("User: {0}".format(user["name"]))
+		filename = self._label.create_member_box_label(user)
+		self.print_pdf(filename)
+
 	def print_text_label(self, text):
 		self._logger.info("Cups Label printer printing text label...")
 		filename = self._label.create_text_label(text)
@@ -85,3 +91,19 @@ class CupsLabelPrinter():
 
 		except Exception as e:
 			self._logger.error("Error printing how to register tag. Error: {0}".format(e))
+
+	def clear_print_queue(self):
+		self._logger.warn("Cups printer clear queue...")
+		self._conn.cancelAllJobs()
+		self._logger.warn("Cups printer queue cleared.")
+
+	def get_print_queue(self):
+		self._logger.warn("Cups printer returning jobs...")
+		jobs = self._conn.getJobs()
+		for job in jobs:
+			self._logger.info("Job:{0}".format(job))
+		return jobs
+
+	def cancel_old_print_jobs(self):
+		self._logger.warn("Cups printer cancel old print jobs (Not implemente)...")
+		# TODO: Cancel jobs older than x minutes...

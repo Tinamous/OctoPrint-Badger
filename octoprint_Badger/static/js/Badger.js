@@ -84,10 +84,16 @@ $(function() {
         };
 
         self.printDoNotHack = function() {
-            console.log("Requesting print Do Not Hack Label")
+            console.log("Requesting print Do Not Hack label")
             self.status("Printing...");
             OctoPrint.simpleApiCommand(self.pluginId, "PrintDoNotHack", {}, {});
         };
+
+        self.printMembersBox = function() {
+            console.log("Requesting print members box label")
+            self.status("Printing...");
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintMembersBox", {}, {});
+        }
 
         self.printHowToRegister = function() {
             console.log("Requesting print How To Register Label")
@@ -101,6 +107,29 @@ $(function() {
             var payload = { text:self.textBlock() };
             OctoPrint.simpleApiCommand(self.pluginId, "PrintText", payload, {});
         };
+
+        self.printJobs = ko.observableArray([]);
+
+        self.getPrintQueue = function() {
+            self.printJobs([{jobId:1, name:"Test"}])
+            OctoPrint.simpleApiGet(self.pluginId, {request:"getPrintQueue"})
+                .done(function(response) {
+                    console.log("Get Print Queue Response: " + response)
+                    // do something with the response
+                });
+
+        };
+
+        self.clearPrintQueue = function() {
+            console.log("Requesting clear print queue")
+            self.status("Clearing Print Queue...");
+            OctoPrint.simpleApiCommand(self.pluginId, "ClearPrintQueue", {}, {});
+        };
+
+        self.labelsRefilled = function() {
+            console.log("Setting labels refilled")
+            OctoPrint.simpleApiCommand(self.pluginId, "LabelsRefilled", {}, {});
+        }
 
         self._showpopup = function(options, eventListeners) {
             self._closePopup();

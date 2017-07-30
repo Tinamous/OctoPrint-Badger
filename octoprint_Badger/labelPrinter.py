@@ -25,6 +25,8 @@ class LabelPrinter():
 			self._actualLabelPrinter = CupsLabelPrinter(self._logger, self._settings, self._data_folder, label)
 			self._actualLabelPrinter.initialize()
 
+		# TODO: Setup a timer to cancel old print jobs...
+
 	def get_label(self):
 		label_template = self._settings.get(["labelTemplate"])
 		x_offset = int(self._settings.get(["xOffset"]))
@@ -46,10 +48,26 @@ class LabelPrinter():
 	def print_do_not_hack_label(self, user, remove_after, label_serial_number):
 		self._actualLabelPrinter.print_do_not_hack_label(user, remove_after, label_serial_number)
 
+	def print_member_box_label(self, user):
+		self._actualLabelPrinter.print_member_box_label(user)
+
 	# Print a generic text label
 	def print_text_label(self, text):
 		self._actualLabelPrinter.print_text_label(text)
 
-	# Print
+	# Print how to register label for when the user has tagged the rfid sensor
+	# but is not registered and so can't be found
 	def print_how_to_register(self, fob_id):
 		self._actualLabelPrinter.print_how_to_register(fob_id)
+
+	def clear_print_queue(self):
+		self._logger.warn("Clearing the print queue...")
+		self._actualLabelPrinter.clear_print_queue()
+
+	def get_print_queue(self):
+		return self._actualLabelPrinter.get_print_queue()
+
+	def cancel_old_print_jobs(self):
+		self._logger.warn("Cancelling old print jobs...")
+		if not self._actualLabelPrinter == None:
+			return self._actualLabelPrinter.cancel_old_print_jobs()
