@@ -198,7 +198,7 @@ class LargeAddressLabel():
 			c.setFont("Helvetica", 12)
 			c.drawString(x_align, yPosition, at_address2, mode=None)
 
-			yPosition = 4 * mm + self._y_offset
+			yPosition = 3 * mm + self._y_offset
 			c.setFont("Helvetica", 10)
 			c.drawString(x_align, yPosition, "Key Fob: {0}".format(fob_id), mode=None)
 
