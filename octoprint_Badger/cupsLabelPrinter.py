@@ -66,9 +66,9 @@ class CupsLabelPrinter():
 
 	# Print the "How to register label" for users that are not registered
 	# with the system.
-	def print_how_to_register(self):
+	def print_how_to_register(self, fob_id):
 		self._logger.info("Cups Label printer printing how to register label...")
-		filename = self._label.create_register_label()
+		filename = self._label.create_register_label(fob_id)
 		self.print_pdf(filename)
 
 	def print_pdf(self, filename):

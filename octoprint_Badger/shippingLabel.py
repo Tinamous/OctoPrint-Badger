@@ -119,7 +119,7 @@ class ShippingLabel():
 			return None
 
 	# Returns filename of the created label
-	def create_register_label(self):
+	def create_register_label(self, fob_id):
 		try:
 			# Setup the contents of the label.
 			import socket

@@ -115,6 +115,8 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			PrintDoNotHack=[],
 			# Print text
 			PrintText=["text"],
+			# Print the how to register label
+			PrintHowToRegister=[]
 		)
 
 	# API POST command
@@ -133,6 +135,8 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			self.print_do_not_hack_label(user)
 		elif command == "PrintText":
 			self.print_text_label(data["text"])
+		elif command == "PrintHowToRegister":
+			self.print_how_to_register("c01dbeef")
 		else:
 			self._logger.error("Unknown command: {0}".format(command))
 
@@ -215,7 +219,8 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			removeAfterMonths = int(self._settings.get(["removeAfterMonths"]))
 			removeAfter = datetime.date.today() + datetime.timedelta(removeAfterMonths*365/12)
 
-			label_serial_number = self.get_label_serial_number(user);
+			# Stores the label details and returns the serial number generated
+			label_serial_number = self.get_label_serial_number(user, removeAfter);
 
 			self.fire_print_started(filename)
 			self._labeller.print_do_not_hack_label(user, removeAfter, label_serial_number)
@@ -234,12 +239,12 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			self._logger.error("Failed to print label. Error: {0}".format(e))
 			self.fire_print_failed("text")
 
-	def print_how_to_register(self):
+	def print_how_to_register(self, fob_id):
 		filename = "HowToRegister"
 		try:
 			self._logger.info("Did not find a user for the tag, printing how to register tag.")
 			self.fire_print_started(filename)
-			self._labeller.print_how_to_register()
+			self._labeller.print_how_to_register(fob_id)
 			self.fire_print_done(filename)
 		except Exception as e:
 			self._logger.error("Failed to print label. Error: {0}".format(e))
@@ -252,24 +257,24 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		self._reader.initialize()
 
 	def handle_rfid_tag_seen_event(self, payload):
-		tagId = payload["tagId"]
-		self._logger.info("RFID Tag (Event) Seen: " + tagId)
+		tag_id = payload["tagId"]
+		self._logger.info("RFID Tag (Event) Seen: " + tag_id)
 
 		# Raise the plugin message for an RfidTagSeen.
 		pluginData = dict(eventEvent="RfidTagSeen", eventPayload=payload)
 		self._plugin_manager.send_plugin_message(self._identifier, pluginData)
 
 		# Find the user this tag belongs to
-		user = self.find_user_from_tag(tagId)
+		user = self.find_user_from_tag(tag_id)
 
 		if (user == None):
-			self.print_how_to_register()
+			self.print_how_to_register(tag_id)
 		else:
 			self.print_do_not_hack_label(user)
 
 	##~~ General Implementation
 
-	def get_label_serial_number(self, user):
+	def get_label_serial_number(self, user, removeAfter):
 		# TODO: Store a new entry for a do not hack label
 		# created by user... and return the number of the label
 

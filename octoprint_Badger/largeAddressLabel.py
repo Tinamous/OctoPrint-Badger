@@ -28,20 +28,10 @@ class LargeAddressLabel():
 
 		displayName = user_settings.get("displayName")
 
-		if not displayName:
+		if displayName == None or displayName == "":
 			displayName = username
 
-		email_address = user_settings.get("emailAddress")
-		phone_number = user_settings.get("phoneNumber")
-		twitter = user_settings.get("twitter")
-
-		contact = "No contact details"
-		if not email_address == None:
-			contact = email_address
-		elif not twitter == None:
-			contact = "@" + twitter
-		elif not phone_number == None:
-			contact = phone_number
+		contact = self.get_contact_details(user_settings);
 
 		try:
 			#####################################################
@@ -120,7 +110,20 @@ class LargeAddressLabel():
 		# (hopefully the RHS of the main text)
 		return align_to - width
 
+	def get_contact_details(self, user_settings):
+		email_address = user_settings.get("emailAddress")
+		phone_number = user_settings.get("phoneNumber")
+		twitter = user_settings.get("twitter")
 
+		contact = "No contact details"
+		if not email_address == None and not email_address == "":
+			contact = email_address
+		elif not twitter == None and not twitter == "":
+			contact = "@" + twitter
+		elif not phone_number == None and not phone_number == "":
+			contact = phone_number
+
+	# Create a generic text label (e.g. address label)
 	def create_text_label(self, text):
 
 		# TODO: text lines need to be split
@@ -154,14 +157,14 @@ class LargeAddressLabel():
 			return None
 
 	# Returns filename of the created label
-	def create_register_label(self):
+	def create_register_label(self, fob_id):
 		try:
 			# Setup the contents of the label.
 			import socket
 			hostname = socket.gethostname()
 			host = socket.gethostbyname(hostname)
-			comment = "at http://{0}.local or http://{1}".format(hostname, host)
-			name = "Please Register"
+			at_address1 = "at http://{0}.local"
+			at_address2 = "or http://{1}".format(hostname, host)
 
 			#####################################################
 			# Use pdfgen to create our badge...
@@ -169,30 +172,34 @@ class LargeAddressLabel():
 			filename = self._data_folder + "\large-address-register.pdf"
 			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
-			# Name
-			# Now shrink font until name fits...
-			fontSize = 36
-			nameWidth = c.stringWidth(name, "Helvetica-Bold", 60)
-			if (nameWidth > (self._width * 0.9)):
-				fontSize = fontSize * self._width * 0.9 / nameWidth
+			x_align = self._x_offset
 
-			c.setFont("Helvetica-Bold", fontSize)
-			#c.drawCentredString(self.w / 2, 70 - fontSize / 2, name)
-			c.drawString(4 * mm, 4 * mm, name, mode=None)
+			yPosition = 28 * mm + self._y_offset
+			text = "Unknown Key Fob"
+			c.setFont("Helvetica-Bold", 22)
+			c.drawCentredString(self._width / 2, yPosition, text)
 
-			# The Comment.
-			c.setFont("Helvetica", 14)
-			c.translate(self._width / 2, 15)
+			# Please Register...
+			yPosition = 20 * mm + self._y_offset
+			text = "Please Register"
+			c.setFont("Helvetica-Bold", 22)
+			# So we can right align the dates to this.
+			# Center Align
+			c.drawCentredString(self._width / 2, yPosition , text)
 
-			commentWidth = c.stringWidth(comment, "Helvetica-Bold", 14)
-			if (commentWidth > (self._width * 0.9)):
-				hScale = self._width * 0.9 / commentWidth
-			else:
-				hScale = 1
+			# At Address 1 http://...
+			yPosition = 14 * mm + self._y_offset
+			c.setFont("Helvetica", 12)
+			c.drawString(x_align, yPosition, at_address1, mode=None)
 
-			c.scale(hScale, 1)
-			c.drawString(4 * mm, 14 * mm, comment, mode=None)
-			#c.drawCentredString(0, 0, comment)
+			# Or Address 2 - http://...
+			yPosition = 8 * mm + self._y_offset
+			c.setFont("Helvetica", 12)
+			c.drawString(x_align, yPosition, at_address2, mode=None)
+
+			yPosition = 2 * mm + self._y_offset
+			c.setFont("Helvetica", 10)
+			c.drawString(x_align, yPosition, "Key Fob: {0}".format(fob_id), mode=None)
 
 			c.showPage()
 			c.save()

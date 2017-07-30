@@ -23,7 +23,7 @@ class NullLabelPrinter():
 		filename = self._label.create_text_label(text)
 		self._logger.warn("Text label saved to: {0}".format(filename))
 
-	def print_how_to_register(self):
+	def print_how_to_register(self, fob_id):
 		self._logger.warn("Null Label printer printing how to register label...")
-		filename = self._label.create_register_label()
+		filename = self._label.create_register_label(fob_id)
 		self._logger.warn("Register label saved to: {0}".format(filename))

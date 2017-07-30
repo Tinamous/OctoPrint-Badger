@@ -51,5 +51,5 @@ class LabelPrinter():
 		self._actualLabelPrinter.print_text_label(text)
 
 	# Print
-	def print_how_to_register(self):
-		self._actualLabelPrinter.print_how_to_register()
+	def print_how_to_register(self, fob_id):
+		self._actualLabelPrinter.print_how_to_register(fob_id)

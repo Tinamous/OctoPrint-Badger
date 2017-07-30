@@ -3,19 +3,16 @@
     <p data-bind="text: status"></p>
 </div>
 
-<!-- Tab contents when not logged in -->
-<div class="row-fluid" data-bind="visible: notLoggedIn">
-
-    <div data-bind="visible: settings.canRegister">
-        <p>Please login to print a label.</p>
-    </div>
-</div>
-
 <!-- Who's Printing main tab contents when a user is logged in -->
 <div data-bind="visible: loginStateViewModel.isUser">
     <h4>Do Not Hack Label</h4>
     <div>
         <button type="button" class="btn btn-success" data-bind="click: printDoNotHack">Print Do Not Hack</button>
+    </div>
+
+    <h4>How To Register Label</h4>
+    <div>
+        <button type="button" class="btn btn-success" data-bind="click: printHowToRegister">Print How To Register</button>
     </div>
 
     <h4>Text Labels</h4>

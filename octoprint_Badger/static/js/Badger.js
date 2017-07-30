@@ -46,13 +46,28 @@ $(function() {
                 // This needs to be cleared if the tag was used for registering.
             }
 
-                        // If the tag was seen and it is unknown.
+            // If the tag was seen and it is unknown.
             if (data.eventEvent == "PrintDone") {
-                self.status("Label Printed");
+                console.log("Print Done data: " + data)
+                self.status("");
+                var options = {
+                        title: "Label Printed",
+                        text: "Your label was printed.",
+                        hide: false,
+                        type: "success"
+                    };
+                self._showpopup(options, {});
             }
 
             if (data.eventEvent == "PrintFailed") {
-                self.status("Failed to print label");
+                console.log("Print Failed data: " + data)
+                self.status("");
+                var options = {
+                    title: "Label Print Error",
+                    text: "An error occurred printing the label.",
+                    type: "error"
+                };
+                self._showpopup(options, {});
             }
         };
 
@@ -74,11 +89,35 @@ $(function() {
             OctoPrint.simpleApiCommand(self.pluginId, "PrintDoNotHack", {}, {});
         };
 
+        self.printHowToRegister = function() {
+            console.log("Requesting print How To Register Label")
+            self.status("Printing...");
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintHowToRegister", {}, {});
+        }
+
         self.printTextBlock = function() {
             console.log("Requesting print Do Not Hack Label")
             self.status("Printing...");
             var payload = { text:self.textBlock() };
             OctoPrint.simpleApiCommand(self.pluginId, "PrintText", payload, {});
+        };
+
+        self._showpopup = function(options, eventListeners) {
+            self._closePopup();
+            self.popup = new PNotify(options);
+
+            if (eventListeners) {
+                var popupObj = self.popup.get();
+                _.each(eventListeners, function(value, key) {
+                    popupObj.on(key, value);
+                })
+            }
+        };
+
+        self._closePopup = function() {
+            if (self.popup !== undefined) {
+                self.popup.remove();
+            }
         };
     }
 
