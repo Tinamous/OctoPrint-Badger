@@ -5,10 +5,10 @@ import datetime
 
 # Defines the large label (100x54). Dymo: 99014
 class ShippingLabel():
-	def __init__(self, logger, data_folder, xOffset):
+	def __init__(self, logger, data_folder, xOffset, date_format):
 		self._logger = logger
 		self._data_folder = data_folder
-		self._date_format = "%Y-%m-%x"
+		self._date_format = date_format
 
 		# Label size
 		self._width = 101 * mm
@@ -16,7 +16,7 @@ class ShippingLabel():
 		self._xOffset = xOffset * mm
 
 	# Returns filename of the created label
-	def create_user_label(self, user, remove_after):
+	def create_user_label(self, user, remove_after, label_serial_number):
 		self._logger.info("User: {0}".format(user["name"]))
 		username = user["name"];
 		user_settings = user["settings"]
@@ -77,7 +77,7 @@ class ShippingLabel():
 			c.drawString(x_align, 1 * mm, contact, mode=None)
 
 			# Item Details
-			#item_number = "Item #: 37"
+			#item_number = "Item #: {0}".format(label_serial_number)
 			#c.drawString(x_align, 1 * mm, item_number, mode=None)
 
 			c.showPage()

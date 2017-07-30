@@ -5,10 +5,10 @@ import datetime
 
 # Defines the smaller label (89x36). Dymo: 99012
 class LargeAddressLabel():
-	def __init__(self, logger, data_folder, xOffset):
+	def __init__(self, logger, data_folder, xOffset, date_format):
 		self._logger = logger
 		self._data_folder = data_folder
-		self._date_format = "%Y-%m-%x"
+		self._date_format = date_format
 
 		# set up page size parameters - 89 x 36 mm
 		# this should be based on the label profile selected.
@@ -17,7 +17,7 @@ class LargeAddressLabel():
 		self._xOffset = xOffset * mm
 
 	# Returns filename of the created label
-	def create_user_label(self, user, remove_after):
+	def create_user_label(self, user, remove_after, label_serial_number):
 		self._logger.info("User: {0}".format(user["name"]))
 		username = user["name"];
 		user_settings = user["settings"]
@@ -49,36 +49,53 @@ class LargeAddressLabel():
 			# Configurable X-Offset to improve alignment
 			x_align = self._xOffset
 
-			nameHeight = c.stringHeight("DO NOT HACK", "Helvetica-Bold", 30)
-			self._logger.info("DO NOW HACK Height: {0}".format(nameHeight))
-
 			# Do Not Hack...
+			yPosition = 26 * mm
+			text = "DO NOT HACK"
 			c.setFont("Helvetica-Bold", 30)
-			c.drawString(x_align, 30 * mm, "DO NOT HACK!", mode=None)
+			# So we can right align the dates to this.
+			do_not_hack_width = c.stringWidth(text, "Helvetica-Bold", 30)
+			# Actual position for right aligntment
+			do_not_hack_width = do_not_hack_width + x_align
+			c.drawString(x_align, yPosition, text, mode=None)
 
 			# Date Left
+			yPosition = 18 * mm
 			c.setFont("Helvetica", 12)
-			c.drawString(x_align, 18 * mm, "Date Left:", mode=None)
+			c.drawString(x_align, yPosition, "Date Left:", mode=None)
+
+			# Date Left Date (RHS)
 			date_now = datetime.date.today().strftime(self._date_format)
 			c.setFont("Helvetica-Bold", 12)
-			c.drawString((50 + x_align) * mm, 18 * mm, date_now, mode=None)
+			x_position = self.get_right_align_x_position(c, date_now, "Helvetica-Bold", 12, do_not_hack_width)
+			c.drawString(x_position, yPosition, date_now, mode=None)
 
 			# Remove After
+			yPosition = 13 * mm
 			c.setFont("Helvetica", 12)
-			c.drawString(x_align, 13 * mm, "Remove After:", mode=None)
+			c.drawString(x_align, yPosition, "Remove After:", mode=None)
+
+			# Remove After Date (RHS)
 			date_remove_after = remove_after.strftime(self._date_format)
 			c.setFont("Helvetica-Bold", 12)
-			c.drawString((50 + x_align) * mm, 13 * mm, date_remove_after, mode=None)
+			x_position = self.get_right_align_x_position(c, date_remove_after, "Helvetica-Bold", 12, do_not_hack_width)
+			c.drawString(x_position, yPosition, date_remove_after, mode=None)
 
 			# Member Details
+			# Name
+			yPosition = 7 * mm
 			c.setFont("Helvetica-Bold", 10)
-			c.drawString(x_align, 6 * mm, displayName, mode=None)
+			c.drawString(x_align, yPosition, displayName, mode=None)
+
+			# Contact
+			yPosition = 2 * mm
 			c.setFont("Helvetica", 10)
-			c.drawString(x_align, 1 * mm, contact, mode=None)
+			c.drawString(x_align, yPosition, contact, mode=None)
 
 			# Item Details
-			#item_number = "Item #: 37"
-			#c.drawString(x_align, 1 * mm, item_number, mode=None)
+			yPosition = 0 * mm
+			#item_number = "Item #: {0}".format(label_serial_number)
+			#c.drawString(x_align, yPosition * mm, item_number, mode=None)
 
 			c.showPage()
 			c.save()
@@ -88,11 +105,24 @@ class LargeAddressLabel():
 			self._logger.error("Error creating user label. Error: {0}".format(e))
 			return None
 
+	def get_right_align_x_position(self, canvas, text, font, font_size, align_to):
+		if align_to > self._width:
+			align_to = self._width - 10
+
+		width = canvas.stringWidth(text, font, font_size)
+		# Alight the text so it ends at the align to point
+		# (hopefully the RHS of the main text)
+		return align_to - width
+
+
 	def create_text_label(self, text):
 
 		# TODO: text lines need to be split
 		# into individual drawString lines
 		# and moved down the label
+
+		#from reportlab.lib.utils import simpleSplit
+		#lines = simpleSplit(text, fontName, fontSize, maxWidth)
 
 		try:
 			# Setup the contents of the label.

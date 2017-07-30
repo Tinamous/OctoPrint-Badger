@@ -50,13 +50,16 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 	def get_settings_defaults(self):
 		# rfidReaderType="Micro RWD HiTag2",
 		# printer="DYMO_LabelWriter_450",
+		labelTemplate = "99014 - Shipping",
 		return dict(
 			removeAfterMonths=3,
+			labelSerialNumberPrefix="T",
+			dateFormat="%Y-%m-%d",
 			rfidComPort="AUTO",
 			canRegister=True,
 			rfidReaderType="Null Tag Reader",
 			readerOptions=["None", "Null Tag Reader", "Micro RWD HiTag2"],
-			labelTemplate="99014 - Shipping",
+			labelTemplate="99012 - Large Address",
 			labelTemplates=["99014 - Shipping", "99012 - Large Address"],
 			printer="Null Printer",
 			printers=self._printers,
@@ -207,8 +210,10 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			removeAfterMonths = int(self._settings.get(["removeAfterMonths"]))
 			removeAfter = datetime.date.today() + datetime.timedelta(removeAfterMonths*365/12)
 
+			label_serial_number = self.get_label_serial_number(user);
+
 			self.fire_print_started(filename)
-			self._labeller.print_do_not_hack_label(user, removeAfter)
+			self._labeller.print_do_not_hack_label(user, removeAfter, label_serial_number)
 			self.fire_print_done(filename)
 		except Exception as e:
 			self._logger.error("Failed to print label. Error: {0}".format(e))
@@ -259,6 +264,14 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 
 	##~~ General Implementation
 
+	def get_label_serial_number(self, user):
+		# TODO: Store a new entry for a do not hack label
+		# created by user... and return the number of the label
+
+		label_number = 12
+		label_number_prefix = self._settings.get(["labelSerialNumberPrefix"])
+		return "{0}-{1}".format(label_number_prefix, label_number)
+
 	def fire_print_started(self, filename):
 		data_folder = self.get_plugin_data_folder();
 		payload = dict(name=filename, path=data_folder, origin="local", file=filename + ".gcode")
@@ -268,11 +281,15 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		data_folder = self.get_plugin_data_folder();
 		payload = dict(name=filename, path=data_folder, origin="local", file=filename + ".gcode", time= time.time())
 		self._event_bus.fire(Events.PRINT_DONE, payload);
+		payload = dict(eventEvent="PrintDone",message="Label Printed")
+		self._plugin_manager.send_plugin_message(self._identifier, payload)
 
 	def fire_print_failed(self, filename):
 		data_folder = self.get_plugin_data_folder();
 		payload = dict(name=filename, path=data_folder, origin="local", file= filename + ".gcode")
 		self._event_bus.fire(Events.PRINT_FAILED, payload)
+		payload = dict(eventEvent="PrintFailed", message="Error printing label")
+		self._plugin_manager.send_plugin_message(self._identifier, payload)
 
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py

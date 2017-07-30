@@ -14,9 +14,9 @@ class NullLabelPrinter():
 	def get_printers(self):
 		return ["Dymo_LabelWriter_NullType", "Another_Dymo_LabelWriter_NullType"]
 
-	def print_do_not_hack_label(self, user, remove_after):
+	def print_do_not_hack_label(self, user, remove_after, label_serial_number):
 		self._logger.warn("Null Label printer printing label...")
-		filename = self._label.create_user_label(user, remove_after)
+		filename = self._label.create_user_label(user, remove_after, label_serial_number)
 		self._logger.warn("Do Not Hack label saved to: {0}".format(filename))
 
 	def print_text_label(self, text):

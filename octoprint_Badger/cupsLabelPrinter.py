@@ -53,10 +53,10 @@ class CupsLabelPrinter():
 		return printers
 
 	# Print the Do Not Hack label
-	def print_do_not_hack_label(self, user, remove_after):
+	def print_do_not_hack_label(self, user, remove_after, label_serial_number):
 		self._logger.info("Cups Label printer printing DO NOT HACK label...")
 		self._logger.info("User: {0}".format(user["name"]))
-		filename = self._label.create_user_label(user, remove_after)
+		filename = self._label.create_user_label(user, remove_after, label_serial_number)
 		self.print_pdf(filename)
 
 	def print_text_label(self, text):

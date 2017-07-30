@@ -27,12 +27,13 @@ class LabelPrinter():
 
 	def get_label(self):
 		label_template = self._settings.get(["labelTemplate"])
-		xOffset = self._settings.get(["xOffset"])
+		x_offset = self._settings.get(["xOffset"])
+		date_format = self._settings.get(["dateFormat"])
 
 		if label_template == "99014 - Shipping":
-			return ShippingLabel(self._logger, self._data_folder, xOffset)
+			return ShippingLabel(self._logger, self._data_folder, x_offset, date_format)
 		else:
-			return LargeAddressLabel(self._logger, self._data_folder, xOffset)
+			return LargeAddressLabel(self._logger, self._data_folder, x_offset, date_format)
 
 	def get_printers(self):
 		return self._actualLabelPrinter.get_printers()
@@ -41,8 +42,8 @@ class LabelPrinter():
 	# User should be dict version of user object
 	# remove after the date after which the item
 	# should be removed from storage.
-	def print_do_not_hack_label(self, user, remove_after):
-		self._actualLabelPrinter.print_do_not_hack_label(user, remove_after)
+	def print_do_not_hack_label(self, user, remove_after, label_serial_number):
+		self._actualLabelPrinter.print_do_not_hack_label(user, remove_after, label_serial_number)
 
 	# Print a generic text label
 	def print_text_label(self, text):

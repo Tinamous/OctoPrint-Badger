@@ -4,30 +4,21 @@
     <div class="control-group col-xs-4">
         <label class="control-label">Remove After (Months)</label>
         <div class="controls">
-            <div class="input-append">
-                <text data-bind="value: settings.plugins.badger.removeAfterMonths" >
-            </div>
-        </div>
-    </div>
-
-    <h3>RFID Reader</h3>
-    <div class="control-group col-xs-4">
-        <label class="control-label">RFID Reader Type</label>
-        <div class="controls">
-		<div class="input-append">
-			<select data-bind="options: settings.plugins.badger.readerOptions, value: settings.plugins.badger.rfidReaderType" >
-			</select>
-		</div>
+            <input type="text" data-bind="value: settings.plugins.badger.removeAfterMonths" >
         </div>
     </div>
 
     <div class="control-group col-xs-4">
-        <label class="control-label">RFID Comm Port</label>
+        <label class="control-label">Label Serial Number Prefix</label>
         <div class="controls">
-		<div class="input-append">
-			<select data-bind="options: serial_portOptions, value: settings.plugins.badger.rfidComPort" >
-			</select>
-		</div>
+            <input type="text" data-bind="value: settings.plugins.badger.labelSerialNumberPrefix" >
+        </div>
+    </div>
+
+    <div class="control-group col-xs-4">
+        <label class="control-label">Date Format</label>
+        <div class="controls">
+            <input type="text" data-bind="value: settings.plugins.badger.dateFormat" >
         </div>
     </div>
 
@@ -35,29 +26,41 @@
     <div class="control-group">
         <label class="control-label">Label Template</label>
         <div class="controls">
-		<div class="input-append">
             <select data-bind="options: settings.plugins.badger.labelTemplates, value: settings.plugins.badger.labelTemplate" >
 			</select>
-		</div>
         </div>
     </div>
 
     <div class="control-group col-xs-4">
         <label class="control-label">Printer</label>
         <div class="controls">
-		<div class="input-append">
 			<select data-bind="options: settings.plugins.badger.printers, value: settings.plugins.badger.printer" >
 			</select>
 		</div>
-        </div>
     </div>
 
     <div class="control-group col-xs-4">
         <label class="control-label">Left Margain</label>
         <div class="controls">
-		<div class="input-append">
-            <input type="text" data-bind="value: settings.plugins.badger.xOffert" />
-		</div>
+            <input type="text" data-bind="value: settings.plugins.badger.xOffset" />
+            <span class="help-inline">Offset in mm from the left side</span>
+        </div>
+    </div>
+
+    <h3>RFID Reader</h3>
+    <div class="control-group col-xs-4">
+        <label class="control-label">RFID Reader Type</label>
+        <div class="controls">
+			<select data-bind="options: settings.plugins.badger.readerOptions, value: settings.plugins.badger.rfidReaderType" >
+			</select>
+        </div>
+    </div>
+
+    <div class="control-group col-xs-4">
+        <label class="control-label">RFID Comm Port</label>
+        <div class="controls">
+			<select data-bind="options: serial_portOptions, value: settings.plugins.badger.rfidComPort" >
+			</select>
         </div>
     </div>
 </form>

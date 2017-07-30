@@ -15,6 +15,7 @@ $(function() {
         self.settingsViewModel = parameters[1];
         self.printer = parameters[2];
 
+        self.status = ko.observable("");
         self.textBlock = ko.observable("");
 
         self.notLoggedIn = ko.computed(function() {
@@ -44,6 +45,15 @@ $(function() {
                 //self.unknownTagSeen(true);
                 // This needs to be cleared if the tag was used for registering.
             }
+
+                        // If the tag was seen and it is unknown.
+            if (data.eventEvent == "PrintDone") {
+                self.status("Label Printed");
+            }
+
+            if (data.eventEvent == "PrintFailed") {
+                self.status("Failed to print label");
+            }
         };
 
         self.onUserLoggedIn = function(user) {
@@ -53,18 +63,20 @@ $(function() {
 
         self.tagSeen = function() {
             console.log("Requesting print Do Not Hack Label")
+            self.status("Printing...");
             var payload = { tagId:'12345678' };
             OctoPrint.simpleApiCommand(self.pluginId, "TagSeen", payload, {});
         };
 
         self.printDoNotHack = function() {
             console.log("Requesting print Do Not Hack Label")
-            var payload = { tagId:'12345678' };
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintDoNotHack", payload, {});
+            self.status("Printing...");
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintDoNotHack", {}, {});
         };
 
         self.printTextBlock = function() {
             console.log("Requesting print Do Not Hack Label")
+            self.status("Printing...");
             var payload = { text:self.textBlock() };
             OctoPrint.simpleApiCommand(self.pluginId, "PrintText", payload, {});
         };
