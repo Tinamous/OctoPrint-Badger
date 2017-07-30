@@ -115,13 +115,14 @@ class LargeAddressLabel():
 		phone_number = user_settings.get("phoneNumber")
 		twitter = user_settings.get("twitter")
 
-		contact = "No contact details"
 		if not email_address == None and not email_address == "":
-			contact = email_address
+			return email_address
 		elif not twitter == None and not twitter == "":
-			contact = "@" + twitter
+			return "@" + twitter
 		elif not phone_number == None and not phone_number == "":
-			contact = phone_number
+			return phone_number
+		else:
+			return "No contact details :-("
 
 	# Create a generic text label (e.g. address label)
 	def create_text_label(self, text):
@@ -161,9 +162,9 @@ class LargeAddressLabel():
 		try:
 			# Setup the contents of the label.
 			import socket
-			hostname = socket.gethostname()
-			host = socket.gethostbyname(hostname)
-			at_address1 = "at http://{0}.local"
+			hostname = socket.gethostname() + ".local"
+			host = socket.gethostbyname(hostname )
+			at_address1 = "at http://{0}"
 			at_address2 = "or http://{1}".format(hostname, host)
 
 			#####################################################
@@ -197,7 +198,7 @@ class LargeAddressLabel():
 			c.setFont("Helvetica", 12)
 			c.drawString(x_align, yPosition, at_address2, mode=None)
 
-			yPosition = 2 * mm + self._y_offset
+			yPosition = 4 * mm + self._y_offset
 			c.setFont("Helvetica", 10)
 			c.drawString(x_align, yPosition, "Key Fob: {0}".format(fob_id), mode=None)
 
