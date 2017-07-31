@@ -113,15 +113,20 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 	def on_api_get(self, request):
 		self._logger.info("on_api_get")
 
-		# TODO: handle more than just the one get request option.
-		jobs = self._labeller.get_print_queue()
-		jobs_list = []
-		for job in jobs:
-			jobs_list.append(dict(jobId=job, jobUri=jobs[job]["job-uri"]))
-			#TODO: Add the attributes
-		return jobs_list
+		try:
+			# TODO: handle more than just the one get request option.
+			jobs = self._labeller.get_print_queue()
+			jobs_list = []
+			for job in jobs:
+				jobs_list.append(dict(jobId=job, jobUri=jobs[job]["job-uri"]))
+				#TODO: Add the attributes
 
-		return flask.jsonify(dict(jobs=jobs_list))
+			return flask.jsonify(dict(jobs=jobs_list))
+		except Exception as e:
+			self._logger.error("Error returning jobs. {0}".format(e))
+			raise
+
+
 
 	# API POST command options
 	def get_api_commands(self):

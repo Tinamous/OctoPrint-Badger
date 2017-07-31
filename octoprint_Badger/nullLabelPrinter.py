@@ -40,8 +40,9 @@ class NullLabelPrinter():
 	def get_print_queue(self):
 		self._logger.warn("Null Label printer returning fake queue...")
 		# TODO: Make it look like a real print queue
-		print_queue = []
-		print_queue.append(dict(jobId=1, description="Null Printer Job 1"))
+		#print_queue = []
+		#print_queue.append(dict(jobId=1, description="Null Printer Job 1"))
+		return {48: {'job-uri': u'ipp://localhost:631/jobs/48'}, 49: {'job-uri': u'ipp://localhost:631/jobs/49'}, 47: {'job-uri': u'ipp://localhost:631/jobs/47'}}
 		return print_queue
 
 	def cancel_old_print_jobs(self):

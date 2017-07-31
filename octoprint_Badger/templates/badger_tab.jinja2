@@ -1,48 +1,55 @@
 <div class="row-fluid" >
     <h3>Badger</h3>
-    <p data-bind="text: status"></p>
 </div>
 
 <!-- Who's Printing main tab contents when a user is logged in -->
 <div data-bind="visible: loginStateViewModel.isUser">
-    <h4>Do Not Hack Label</h4>
+    <p data-bind="text: status"></p>
     <div>
+        <h4>Do Not Hack Label</h4>
         <button type="button" class="btn btn-success" data-bind="click: printDoNotHack">Print Do Not Hack</button>
     </div>
 
-    <h4>Members Box Label</h4>
+
     <div>
+        <h4>Members Box Label</h4>
         <button type="button" class="btn btn-success" data-bind="click: printMembersBox">Print Box Label</button>
     </div>
 
-    <h4>How To Register Label</h4>
+
     <div>
+        <h4>How To Register Label</h4>
         <button type="button" class="btn btn-success" data-bind="click: printHowToRegister">Print How To Register</button>
     </div>
 
-    <h4>Genera Text Label</h4>
+
     <div>
+        <h4>Genera Text Label</h4>
         <div>
             <textarea cols="100" rows="8" data-bind="value:textBlock"></textarea>
         </div>
         <button type="button" class="btn btn-success" data-bind="click: printTextBlock">Print Text</button>
     </div>
 
-    <h4>Clear Print Queue</h4>
-    <div>
-        <button type="button" class="btn btn-success" data-bind="click: clearPrintQueue">Clear Print Queue</button>
-    </div>
 
-    <h4>Print Queue</h4>
     <div>
-        <button type="button" class="btn btn-success" data-bind="click: getPrintQueue">Refresh</button>
+        <h3>Print Queue</h3>
         <ul data-bind="foreach: printJobs">
             <li data-bind="text: name"></li>
         </ul>
+        <button type="button" class="btn btn-success" data-bind="click: getPrintQueue">Refresh</button>
     </div>
 
-    <h4>Labels Refilled</h4>
+    <h3>Maintenance</h3>
+
     <div>
+        <h4>Clear Print Queue</h4>
+        <button type="button" class="btn btn-success" data-bind="click: clearPrintQueue">Clear Print Queue</button>
+    </div>
+
+
+    <div>
+        <h4>Labels Refilled</h4>
         <button type="button" class="btn btn-success" data-bind="click: labelsRefilled">Labels Refilled</button>
     </div>
 </div>

@@ -83,18 +83,20 @@ class CupsLabelPrinter():
 			import cups
 			printer = self._settings.get(["printer"])
 			self._logger.info("Printing '{0}' to printer: {1}".format(filename, printer))
-			job_id = self._conn.printFile(printer, filename, "Badge", {'job-cancel-after':600})
+			job_id = self._conn.printFile(printer, filename, "Badge", {'job-cancel-after':'600'})
 			self._logger.info("Label was sent to the printer. Job id: {0}".format(job_id))
 
 			if job_id == 0:
 				self._logger.error("Label {0} did not print correctly.".format(filename))
 
 		except Exception as e:
-			self._logger.error("Error printing how to register tag. Error: {0}".format(e))
+			self._logger.error("Error printing label. Error: {0}".format(e))
+			raise
 
 	def clear_print_queue(self):
 		self._logger.warn("Cups printer clear queue...")
-		self._conn.cancelAllJobs()
+		printer = self._settings.get(["printer"])
+		self._conn.cancelAllJobs(printer)
 		self._logger.warn("Cups printer queue cleared.")
 
 
@@ -104,11 +106,11 @@ class CupsLabelPrinter():
 		##attributes = self._conn.getJobAttributes(job, ["job-cancel-after", "job-hold-until",
 		##                                               "job-printer-state-message", "job-printer-state-reasons"])
 
-		jobs = self._conn.getJobs('not-completed', False,-1,["job-state","job-media-progress","job-printer-state-message"])
+		jobs = self._conn.getJobs()
 		self._logger.warn("Got jobs: {0}".format(jobs))
 		for job in jobs:
 			self._logger.info("Job:{0}".format(job))
-			self._logger.info("Job url: {0}".format(jobs[job]["job-uri"]))
+			#self._logger.info("Job url: {0}".format(jobs[job]["job-uri"]))
 		return jobs
 
 	def cancel_old_print_jobs(self):

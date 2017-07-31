@@ -69,11 +69,14 @@ $(function() {
                 };
                 self._showpopup(options, {});
             }
+
+            self.getPrintQueue();
         };
 
         self.onUserLoggedIn = function(user) {
             //self.populateUsers();
             //self.getWhosPrinting();
+            self.getPrintQueue();
         };
 
         self.tagSeen = function() {
@@ -111,11 +114,16 @@ $(function() {
         self.printJobs = ko.observableArray([]);
 
         self.getPrintQueue = function() {
-            self.printJobs([{jobId:1, name:"Test"}])
+            //self.printJobs([{jobId:1, name:"Test"}])
             OctoPrint.simpleApiGet(self.pluginId, {request:"getPrintQueue"})
                 .done(function(response) {
                     console.log("Get Print Queue Response: " + response)
                     // do something with the response
+                    var mappedJobs = $.map(response.jobs, function(job){
+                        return {jobId:job.jobId, name:"job " + job.jobId};
+                    })
+
+                    self.printJobs(mappedJobs)
                 });
 
         };
