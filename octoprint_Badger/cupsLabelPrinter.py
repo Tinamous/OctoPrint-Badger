@@ -7,15 +7,19 @@ class CupsLabelPrinter():
 		# Temp one until assigned through initialize
 		# which may not be called when getting the printers.
 		self._logger = logging.getLogger('CupsLabelPrinter')
+		self._logger.info("CupsLabelPrinter ctor")
 
 	# Used by on_settings_load before the class is initialized.
 	def get_printers(self):
+		self._logger.info("Getting CUPS printers before initialize.")
 		import cups
 
 		conn = cups.Connection()
 		cups_printers = conn.getPrinters()
+		self._logger.info("Got Cups Printers: {0}".format(self._printers))
 
 		printers = []
+
 		for printer in cups_printers:
 			printers.append(printer)
 			self._logger.info("Printer: {0}".format(printer))
@@ -47,10 +51,6 @@ class CupsLabelPrinter():
 		# test to see if the label printer is installed
 		self._printers = self._conn.getPrinters()
 		self._logger.info("Printers: {0}".format(self._printers))
-
-		for printer in self._printers:
-			self._logger.info("Printers: {0}".format(printer))
-			self._logger.info("Printers url: {0}".format(self._printers[printer]["device-uri"]))
 
 		# TODO: See if the selected printer is available.
 		try:

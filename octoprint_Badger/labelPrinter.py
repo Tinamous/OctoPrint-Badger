@@ -18,7 +18,8 @@ class LabelPrinter():
 	def get_printers(self):
 		try:
 			# If CUPS was available then return the cups printers.
-			return CupsLabelPrinter().get_printers()
+			cupsPrinter = CupsLabelPrinter();
+			return cupsPrinter.get_printers()
 		except:
 			# If CUPS printing failed offer only the null printer.
 			return ["Null Printer"]
