@@ -134,10 +134,16 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 				jobs_list.append(dict(jobId=job, jobUri=jobs[job]["job-uri"]))
 				#TODO: Add the attributes
 
-			return flask.jsonify(dict(jobs=jobs_list))
+			# Get information on the currently selected printer.
+			# a dict of printer information
+			priter_info = self._labeller.get_printer_info()
+
+			return flask.jsonify(dict(jobs=jobs_list, printerInfo=priter_info))
 		except Exception as e:
 			self._logger.error("Error returning jobs. {0}".format(e))
 			raise
+
+
 
 
 
@@ -262,6 +268,7 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 	def print_do_not_hack_label(self, user):
 		self._logger.info("Printing Do Not Hack Label")
 		filename = user["name"]
+		label_type = "Do Not Hack"
 
 		try:
 			self._logger.info("Printing label for {0}.".format(filename))
@@ -275,49 +282,52 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 
 			self.fire_print_started(filename)
 			job_id = self._labeller.print_do_not_hack_label(user, removeAfter, label_serial_number)
-			self.log_label_printed(job_id, "Do Not Hack", label_serial_number, user, removeAfter);
-			self.fire_print_done(filename, job_id)
+			self.log_label_printed(job_id, label_type, label_serial_number, user, removeAfter);
+			self.fire_print_done(filename, job_id, label_type)
 		except Exception as e:
 			self._logger.error("Failed to print do not hack label. Error: {0}".format(e))
-			self.fire_print_failed(filename)
+			self.fire_print_failed(filename, label_type)
 
 	def print_members_box_label(self, user):
 		self._logger.info("Printing Members Box Label")
 		filename = user["name"]
+		label_type = "Members Box"
 
 		try:
 			self._logger.info("Printing box label for {0}.".format(filename))
 
 			self.fire_print_started(filename)
 			job_id = self._labeller.print_member_box_label(user)
-			self.log_label_printed(job_id, "Members Box", filename, user);
-			self.fire_print_done(filename, job_id)
+			self.log_label_printed(job_id, label_type, filename, user);
+			self.fire_print_done(filename, job_id, label_type)
 		except Exception as e:
 			self._logger.error("Failed to print members box label. Error: {0}".format(e))
-			self.fire_print_failed(filename)
+			self.fire_print_failed(filename, label_type)
 
 	def print_text_label(self, user, text):
+		label_type = "Text Label"
 		try:
 			self._logger.info("Printing text label......")
 			self.fire_print_started("text")
 			job_id = self._labeller.print_text_label(text)
-			self.log_label_printed(job_id, "Text Label", text, user)
-			self.fire_print_done("text", job_id)
+			self.log_label_printed(job_id, label_type, text, user)
+			self.fire_print_done("text", job_id, label_type)
 		except Exception as e:
 			self._logger.error("Failed to print text label. Error: {0}".format(e))
-			self.fire_print_failed("text")
+			self.fire_print_failed("text", label_type)
 
 	def print_how_to_register(self, fob_id):
 		filename = "HowToRegister"
+		label_type = "How To Register"
 		try:
 			self._logger.info("Did not find a user for the tag, printing how to register tag.")
 			self.fire_print_started(filename)
 			job_id = self._labeller.print_how_to_register(fob_id)
-			self.log_label_printed(job_id, "How To Register", "")
-			self.fire_print_done(filename, job_id)
+			self.log_label_printed(job_id, label_type, "")
+			self.fire_print_done(filename, job_id, label_type)
 		except Exception as e:
 			self._logger.error("Failed to print how to register label. Error: {0}".format(e))
-			self.fire_print_failed(filename)
+			self.fire_print_failed(filename, label_type)
 
 	def labels_refilled(self):
 		self._logger.info("Labels refilled. ")
@@ -367,21 +377,21 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		payload = dict(name=filename, path=data_folder, origin="local", file=filename + ".gcode")
 		self._event_bus.fire(Events.PRINT_STARTED, payload);
 
-	def fire_print_done(self, filename, job_id):
+	def fire_print_done(self, filename, job_id, label_type):
 		data_folder = self.get_plugin_data_folder();
-		payload = dict(name=filename, path=data_folder, origin="local", file=filename + ".gcode", time= time.time())
+		payload = dict(name=filename, path=data_folder, origin="local", file=filename + ".gcode", time= time.time(), label_type=label_type)
 		self._event_bus.fire(Events.PRINT_DONE, payload);
 		# Custom event
 		self._event_bus.fire("LabelPrintDone", payload);
 		# And notify the web clients
-		payload = dict(eventEvent="PrintDone",message="Label Printed", filename=filename, jobId=job_id)
+		payload = dict(eventEvent="PrintDone",message="Label Printed", filename=filename, job_id=job_id, label_type=label_type)
 		self._plugin_manager.send_plugin_message(self._identifier, payload)
 
-	def fire_print_failed(self, filename):
+	def fire_print_failed(self, filename, label_type):
 		data_folder = self.get_plugin_data_folder();
 		payload = dict(name=filename, path=data_folder, origin="local", file= filename + ".gcode")
 		self._event_bus.fire(Events.PRINT_FAILED, payload)
-		payload = dict(eventEvent="PrintFailed", message="Error printing label")
+		payload = dict(eventEvent="PrintFailed", message="Error printing label", label_type=label_type)
 		self._plugin_manager.send_plugin_message(self._identifier, payload)
 
 

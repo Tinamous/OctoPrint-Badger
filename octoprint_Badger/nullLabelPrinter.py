@@ -19,6 +19,22 @@ class NullLabelPrinter():
 		self._label = label
 		self._logger.info("Initialize null label printer")
 
+	# 'printer-info': u'DYMO LabelWriter 450',
+	# "printer-state"	"3" if the destination is idle, "4" if the destination is printing a job, and "5" if the destination is stopped.
+	# 'printer-state-message': u'Rendering completed',
+	# 'printer-state-reasons': [u'com.dymo.out-of-paper-error'],
+	# 'printer-make-and-model': u'DYMO LabelWriter 450',
+	def get_printer_info(self):
+
+		return dict(
+			info="Null Label Printer",
+			state=3, # idle
+			stateMessage="Rendering completed",
+			# List.
+			stateReasons=["com.dymo.out-of-paper-error"],
+			makeAndModel="Null Printer V1",
+		)
+
 	def print_do_not_hack_label(self, user, remove_after, label_serial_number):
 		self._logger.warn("Null Label printer printing label...")
 		filename = self._label.create_user_label(user, remove_after, label_serial_number)

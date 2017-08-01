@@ -28,6 +28,16 @@
             <li data-bind="text: name"></li>
         </ul>
     </div>
+
+    <h1>Printer:</h1>
+    <div data-bind="with: printerInfo">
+        <p>Name: <span data-bind="text:info"></span></p>
+        <p>Make and Model: <span data-bind="text:makeAndModel"></span></p>
+        <p>State: <span data-bind="text:state"></span></p>
+        <p>Message: <span data-bind="text:stateMessage"></span></p>
+        <p>Reason: <span data-bind="text:stateReasons"></span></p>
+
+    </div>
 </div>
 
 

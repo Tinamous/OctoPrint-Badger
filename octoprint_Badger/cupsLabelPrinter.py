@@ -46,9 +46,27 @@ class CupsLabelPrinter():
 		# TODO: See if the selected printer is available.
 		try:
 			selectedPrinter = self._settings.get(["printer"])
-			self._printers[selectedPrinter]["device-uri"]
+			uri = self._printers[selectedPrinter]["device-uri"]
+			self._printer = self._printers[selectedPrinter]
 		except KeyError:
 			self._logger.error("Selected printer not found")
+
+	# 'printer-info': u'DYMO LabelWriter 450',
+	# "printer-state"	"3" if the destination is idle, "4" if the destination is printing a job, and "5" if the destination is stopped.
+	# 'printer-state-message': u'Rendering completed',
+	# 'printer-state-reasons': [u'com.dymo.out-of-paper-error'],
+	def get_printer_info(self):
+		if self._printer == None:
+			return None
+		else:
+			return dict(
+				info=self._printer["printer-info"],
+				state=self._printer["printer-state"],
+				stateMessage=self._printer["printer-state-message"],
+				# List.
+				stateReasons=self._printer["printer-state-reasons"],
+				makeAndModel=self._printer["printer-make-and-model"],
+			)
 
 	# Print the Do Not Hack label
 	def print_do_not_hack_label(self, user, remove_after, label_serial_number):

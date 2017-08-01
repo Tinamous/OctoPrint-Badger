@@ -98,3 +98,6 @@ class LabelPrinter():
 				return self._actualLabelPrinter.cancel_old_print_jobs()
 		except Exception as e:
 			self._logger.error("Error cancelling old print jobs: {0}".format(e))
+
+	def get_printer_info(self):
+		return self._actualLabelPrinter.get_printer_info()

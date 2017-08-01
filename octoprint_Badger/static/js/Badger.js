@@ -16,6 +16,7 @@ $(function() {
         self.printer = parameters[2];
 
         self.status = ko.observable("");
+        self.printerInfo = ko.observable();
         self.textBlock = ko.observable("");
 
         self.notLoggedIn = ko.computed(function() {
@@ -50,9 +51,17 @@ $(function() {
             if (data.eventEvent == "PrintDone") {
                 console.log("Print Done data: " + data)
                 self.status("");
+
+                var text = "<div>";
+                text += "<ul class='icons-ul'>";
+                text += "<li><span>Label Type: " + data.label_type + "</span></li>";
+                text += "<li><span>Job Id: " + data.job_id + "</span></li>";
+                text += "<li><span>Details: " + data.filename + "</span></li>";
+                text += "</div>";
+
                 var options = {
                         title: "Label Printed",
-                        text: "Your label was printed.",
+                        text: text, //"Label printed: Label: " + data.label_type + ", Job Id: " + data.job_id + ", Details: " + data.filename,
                         hide: false,
                         type: "success"
                     };
@@ -122,6 +131,9 @@ $(function() {
                     var mappedJobs = $.map(response.jobs, function(job){
                         return {jobId:job.jobId, name:"job " + job.jobId};
                     })
+
+                    console.log("Printer info: " + response.printerInfo)
+                    self.printerInfo(response.printerInfo)
 
                     self.printJobs(mappedJobs)
                 });
