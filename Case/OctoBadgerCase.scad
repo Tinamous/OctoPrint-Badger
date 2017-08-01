@@ -15,7 +15,7 @@ module showModels() {
         %raspberryPi();
     }
 
-    translate([(caseWidth - 50)/2 + 50, -120+10, caseHeight-5]) {    
+    translate([(caseWidth - 50)/2 + 50, -140+10, caseHeight-5]) {    
         rotate([0,180,0]) {
             %rfidPcb();
         }
@@ -158,6 +158,10 @@ module piCase() {
                 translate([(caseWidth-74)/2,-1,caseHeight-2]) {
                     cube([74, 80, 34]);
                 }
+                // Repeat cutout but to include part of the top section as well.
+                translate([(caseWidth-74)/2,-1,caseHeight-2]) {
+                    cube([74, 54 + 9, 40]);
+                }
                 
                 // Hole for the power connector.
                 powerHoleDiameter = 12.6;
@@ -175,22 +179,73 @@ module piCase() {
     }
     
     // Add joint senction to help join to the rfid section
-    translate([0,-15,0]) {
+
         difference() {
             union() {
-                translate([1.6,0,1.6]) {
-                    cube([caseWidth - 3.2, 25, caseHeight - 3.2]);
+                // Connect to the rear section outer wall to slightlu
+                // inside as the connection section is slightly smaller
+                // than the actuall inner.
+                translate([0,0,0]) {
+                    //goes 10mm inside the rear section
+                    #cube([caseWidth, 10, caseHeight]);
+                }
+                translate([2,-15,2]) {
+                    // 1.6mm is wall width
+                    // so 0.4mm smaller all around
+                    // which is the nozzle diameter.
+                    cube([caseWidth - 4, 25, caseHeight - 4]);
                 }
             }
             union() {
-                translate([3.2,-0.1,3.2]) {
-                    cube([caseWidth - 6.4, 25.2, caseHeight - 6.4]);
+                translate([0,-15.001,0]) {
+                    // Hollow out from the front to the rear sectoin
+                    translate([3.2,-0.1,3.2]) {
+                        cube([caseWidth - 6.4, 25.2, caseHeight - 6.4]);
+                    }
+                    
+                    translate([baseCutoutOffset,-0.1,0]) {
+                        cube([caseWidth - (2 * baseCutoutOffset), 40.2, 4]);
+                    }
+                    
+                    // Add holes to allow the sections to be bolted together
+                    
+                    translate([10,7.5,-2]) {
+                        #cylinder(d=3, h=caseHeight+10);
+                    }
+                                    
+                    translate([caseWidth/2,7.5,-2]) {
+                        #cylinder(d=3, h=caseHeight+10);
+                    }
+                    
+                    translate([caseWidth-10,7.5,-2]) {
+                        #cylinder(d=3, h=caseHeight+10);
+                    }
                 }
-                
-                translate([baseCutoutOffset,-0.1,0]) {
-                    cube([caseWidth - (2 * baseCutoutOffset), 40.2, 4]);
-                }
-                
+            }
+        }  
+    
+}
+
+rfidCaseLength = 40;//130;
+
+module rfidCase() {   
+    
+    difference() {
+        union() {
+            cube([caseWidth, rfidCaseLength , caseHeight]);
+        }
+        union() {
+            // Hollow the part below the printer
+            translate([1.6,-0.1,1.6]) {
+                cube([caseWidth-3.2, rfidCaseLength +5, caseHeight-3.2]);
+            }
+            
+            // Base cutout for electronics insertion.
+            translate([baseCutoutOffset,10,-1]) {
+                cube([baseCutout, 151, 5]);
+            }
+            
+            translate([0,rfidCaseLength - 15,0]) {
                 // Add holes to allow the sections to be bolted together
                 
                 translate([10,7.5,-2]) {
@@ -204,31 +259,9 @@ module piCase() {
                 translate([caseWidth-10,7.5,-2]) {
                     #cylinder(d=3, h=caseHeight+10);
                 }
-                
             }
-        }
-    }
-    
-        
-    
-}
 
-module rfidCase() {   
-    
-    difference() {
-        union() {
-            cube([caseWidth, 150, caseHeight]);
-        }
-        union() {
-            // Hollow the part below the printer
-            translate([1.6,-0.1,1.6]) {
-                cube([caseWidth-3.2, 152+5, caseHeight-3.2]);
-            }
-            
-            // Base cutout for electronics insertion.
-            translate([10,10,-1]) {
-                cube([caseWidth-20, 151, 5]);
-            }
+
         }
     }
     
@@ -280,7 +313,7 @@ module landspeederEngine() {
 }
 
 color("blue") {
-    //piCase();
+    piCase();
     /*
     translate([-35, 60+80, 40]) {
         rotate([90,0,0]) {
@@ -295,9 +328,9 @@ color("blue") {
     */
 }
 
-translate([0,-150,0]) {
+translate([0,-rfidCaseLength,0]) {
     color("green") {
-       rfidCase();
+    //   rfidCase();
     }
 }
 
