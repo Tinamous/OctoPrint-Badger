@@ -1,3 +1,4 @@
+import logging
 
 from .nullLabelPrinter import NullLabelPrinter
 from .cupsLabelPrinter import CupsLabelPrinter
@@ -8,22 +9,35 @@ from .largeAddressLabel import LargeAddressLabel
 # and delegation of the label printing task to the
 # appropriate label printer.
 class LabelPrinter():
-	def __init__(self, logger, settings, data_folder):
+	def __init__(self, ):
+		# Temp one until assigned through initialize
+		# which may not be called when getting the printers.
+		self._logger = logging.getLogger('LabelPrinter')
+
+	# Called before initialize as used by on_settings_load
+	def get_printers(self):
+		try:
+			# If CUPS was available then return the cups printers.
+			return CupsLabelPrinter().get_printers()
+		except:
+			# If CUPS printing failed offer only the null printer.
+			return ["Null Printer"]
+
+	def initialize(self, logger, settings, data_folder):
 		self._logger = logger
 		self._settings = settings
 		self._data_folder = data_folder
 
-	def initialize(self):
 		# TODO: Figure out which label printer system to use.
 		printer = self._settings.get(["printer"])
 		label = self.get_label();
 
 		if printer == "Null Printer":
-			self._actualLabelPrinter = NullLabelPrinter(self._logger, self._settings, self._data_folder, label)
-			self._actualLabelPrinter.initialize()
+			self._actualLabelPrinter = NullLabelPrinter()
+			self._actualLabelPrinter.initialize(self._logger, self._settings, self._data_folder, label)
 		else:
-			self._actualLabelPrinter = CupsLabelPrinter(self._logger, self._settings, self._data_folder, label)
-			self._actualLabelPrinter.initialize()
+			self._actualLabelPrinter = CupsLabelPrinter()
+			self._actualLabelPrinter.initialize(self._logger, self._settings, self._data_folder, label)
 
 		# TODO: Setup a timer to cancel old print jobs...
 
@@ -38,27 +52,28 @@ class LabelPrinter():
 		else:
 			return LargeAddressLabel(self._logger, self._data_folder, x_offset, y_offset, date_format)
 
-	def get_printers(self):
-		return self._actualLabelPrinter.get_printers()
-
 	# Print the Do Not Hack Label
 	# User should be dict version of user object
 	# remove after the date after which the item
 	# should be removed from storage.
 	def print_do_not_hack_label(self, user, remove_after, label_serial_number):
-		self._actualLabelPrinter.print_do_not_hack_label(user, remove_after, label_serial_number)
+		job_id = self._actualLabelPrinter.print_do_not_hack_label(user, remove_after, label_serial_number)
+		return job_id
 
 	def print_member_box_label(self, user):
-		self._actualLabelPrinter.print_member_box_label(user)
+		job_id = self._actualLabelPrinter.print_member_box_label(user)
+		return job_id
 
 	# Print a generic text label
 	def print_text_label(self, text):
-		self._actualLabelPrinter.print_text_label(text)
+		job_id = self._actualLabelPrinter.print_text_label(text)
+		return job_id
 
 	# Print how to register label for when the user has tagged the rfid sensor
 	# but is not registered and so can't be found
 	def print_how_to_register(self, fob_id):
-		self._actualLabelPrinter.print_how_to_register(fob_id)
+		job_id = self._actualLabelPrinter.print_how_to_register(fob_id)
+		return job_id
 
 	def clear_print_queue(self):
 		self._logger.warn("Clearing the print queue...")

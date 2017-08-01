@@ -1,17 +1,19 @@
 <form class="form-horizontal">
 
-    <h3>Options</h3>
+    <h3>Do Not Hack Options:</h3>
     <div class="control-group col-xs-4">
         <label class="control-label">Remove After (Months)</label>
         <div class="controls">
             <input type="text" data-bind="value: settings.plugins.badger.removeAfterMonths" >
+            <span class="help-block">How long members are allowed to keep items in Storage</span>
         </div>
     </div>
 
     <div class="control-group col-xs-4">
-        <label class="control-label">Label Serial Number Prefix</label>
+        <label class="control-label">Serial Number Prefix</label>
         <div class="controls">
             <input type="text" data-bind="value: settings.plugins.badger.labelSerialNumberPrefix" >
+            <span class="help-block">Serial numbers are generated per label printer, prefix to make it unique.</span>
         </div>
     </div>
 
@@ -19,17 +21,11 @@
         <label class="control-label">Date Format</label>
         <div class="controls">
             <input type="text" data-bind="value: settings.plugins.badger.dateFormat" >
+            <span class="help-block">Year: %Y, Month :%m, Day: %d</span>
         </div>
     </div>
 
-    <h3>Label Printing</h3>
-    <div class="control-group">
-        <label class="control-label">Label Template</label>
-        <div class="controls">
-            <select data-bind="options: settings.plugins.badger.labelTemplates, value: settings.plugins.badger.labelTemplate" >
-			</select>
-        </div>
-    </div>
+    <h3>Label Printing:</h3>
 
     <div class="control-group col-xs-4">
         <label class="control-label">Printer</label>
@@ -39,11 +35,20 @@
 		</div>
     </div>
 
+    <div class="control-group">
+        <label class="control-label">Label Template</label>
+        <div class="controls">
+            <select data-bind="options: settings.plugins.badger.labelTemplates, value: settings.plugins.badger.labelTemplate" >
+			</select>
+            <span class="help-block">99012: 36x89mm, 99014: 54x101mm</span>
+        </div>
+    </div>
+
     <div class="control-group col-xs-4">
         <label class="control-label">Left Margain</label>
         <div class="controls">
             <input type="text" data-bind="value: settings.plugins.badger.xOffset" />
-            <span class="help">Offset in mm from the left side</span>
+            <span class="help-block">Offset in mm from the left side</span>
         </div>
     </div>
 
@@ -51,11 +56,11 @@
         <label class="control-label">Bottom Margain</label>
         <div class="controls">
             <input type="text" data-bind="value: settings.plugins.badger.yOffset" />
-            <span class="help">Offset in mm from the bottom edge</span>
+            <span class="help-block">Offset in mm from the bottom edge</span>
         </div>
     </div>
 
-    <h3>RFID Reader</h3>
+    <h3>RFID Reader:</h3>
     <div class="control-group col-xs-4">
         <label class="control-label">RFID Reader Type</label>
         <div class="controls">

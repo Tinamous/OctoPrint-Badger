@@ -61,7 +61,6 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			labelTemplate="99012 - Large Address",
 			labelTemplates=["99012 - Large Address", "99014 - Shipping"],
 			printer="Null Printer",
-			printers=self._printers,
 			# Text X Offset in mm (Labels typically have a min of 5mm left margin
 			xOffset=6,
 			yOffset=0,
@@ -77,6 +76,20 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		)
 
 	# TODO: override on_settings_load and inject the list of printers.
+	def on_settings_load(self):
+		data = octoprint.plugin.SettingsPlugin.on_settings_load(self)
+		data["printers"] = ["foo", "bar", "baz"]
+
+		# We know the selected printing system at this time, so we couc
+		# use that to get the printers
+		try:
+			labeller = LabelPrinter()
+			data["printers"] = labeller.get_printers()
+		except Exception as e:
+			self._logger.error("Failed to get printers")
+			data["printers"] = ["None"]
+
+		return data
 
 	def on_settings_save(self, data):
 		self._logger.info("Badger saving settings...")
@@ -243,8 +256,8 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		data_folder = self.get_plugin_data_folder();
 		self._logger.info("Badger folder: {0}".format(data_folder));
 
-		self._labeller = LabelPrinter(self._logger, self._settings, data_folder)
-		self._labeller.initialize();
+		self._labeller = LabelPrinter()
+		self._labeller.initialize(self._logger, self._settings, data_folder);
 
 	def print_do_not_hack_label(self, user):
 		self._logger.info("Printing Do Not Hack Label")
@@ -261,9 +274,9 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			label_serial_number = self.get_label_serial_number(user, removeAfter);
 
 			self.fire_print_started(filename)
-			self._labeller.print_do_not_hack_label(user, removeAfter, label_serial_number)
-			self.log_label_printed("Do Not Hack", filename, user, removeAfter);
-			self.fire_print_done(filename)
+			job_id = self._labeller.print_do_not_hack_label(user, removeAfter, label_serial_number)
+			self.log_label_printed(job_id, "Do Not Hack", label_serial_number, user, removeAfter);
+			self.fire_print_done(filename, job_id)
 		except Exception as e:
 			self._logger.error("Failed to print do not hack label. Error: {0}".format(e))
 			self.fire_print_failed(filename)
@@ -276,9 +289,9 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			self._logger.info("Printing box label for {0}.".format(filename))
 
 			self.fire_print_started(filename)
-			self._labeller.print_member_box_label(user)
-			self.log_label_printed("Members Box", filename, user);
-			self.fire_print_done(filename)
+			job_id = self._labeller.print_member_box_label(user)
+			self.log_label_printed(job_id, "Members Box", filename, user);
+			self.fire_print_done(filename, job_id)
 		except Exception as e:
 			self._logger.error("Failed to print members box label. Error: {0}".format(e))
 			self.fire_print_failed(filename)
@@ -287,9 +300,9 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		try:
 			self._logger.info("Printing text label......")
 			self.fire_print_started("text")
-			self._labeller.print_text_label(text)
-			self.log_label_printed("Text Label", text, user)
-			self.fire_print_done("text")
+			job_id = self._labeller.print_text_label(text)
+			self.log_label_printed(job_id, "Text Label", text, user)
+			self.fire_print_done("text", job_id)
 		except Exception as e:
 			self._logger.error("Failed to print text label. Error: {0}".format(e))
 			self.fire_print_failed("text")
@@ -299,9 +312,9 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		try:
 			self._logger.info("Did not find a user for the tag, printing how to register tag.")
 			self.fire_print_started(filename)
-			self._labeller.print_how_to_register(fob_id)
-			self.log_label_printed("How To Register", "")
-			self.fire_print_done(filename)
+			job_id = self._labeller.print_how_to_register(fob_id)
+			self.log_label_printed(job_id, "How To Register", "")
+			self.fire_print_done(filename, job_id)
 		except Exception as e:
 			self._logger.error("Failed to print how to register label. Error: {0}".format(e))
 			self.fire_print_failed(filename)
@@ -334,10 +347,10 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 
 	##~~ General Implementation
 
-	def log_label_printed(self, label_type, filename, user = None, remove_after = None):
+	def log_label_printed(self, job_id, label_type, details, user = None, remove_after = None):
 		# TODO: Store in database...
 		# Do Not Hack will be stored with the remove_after
-		self._logger.info("Label Printed. Type: {0}, details: {1}".format(label_type, filename))
+		self._logger.info("Label Printed. Type: {0}, details: {1}".format(label_type, details))
         # TODO: Decrement the number of labels left on the roll.
 
 	def get_label_serial_number(self, user, removeAfter):
@@ -354,14 +367,14 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		payload = dict(name=filename, path=data_folder, origin="local", file=filename + ".gcode")
 		self._event_bus.fire(Events.PRINT_STARTED, payload);
 
-	def fire_print_done(self, filename):
+	def fire_print_done(self, filename, job_id):
 		data_folder = self.get_plugin_data_folder();
 		payload = dict(name=filename, path=data_folder, origin="local", file=filename + ".gcode", time= time.time())
 		self._event_bus.fire(Events.PRINT_DONE, payload);
 		# Custom event
 		self._event_bus.fire("LabelPrintDone", payload);
 		# And notify the web clients
-		payload = dict(eventEvent="PrintDone",message="Label Printed", filename=filename)
+		payload = dict(eventEvent="PrintDone",message="Label Printed", filename=filename, jobId=job_id)
 		self._plugin_manager.send_plugin_message(self._identifier, payload)
 
 	def fire_print_failed(self, filename):

@@ -1,55 +1,60 @@
-<div class="row-fluid" >
-    <h3>Badger</h3>
-</div>
-
 <!-- Who's Printing main tab contents when a user is logged in -->
 <div data-bind="visible: loginStateViewModel.isUser">
-    <p data-bind="text: status"></p>
     <div>
-        <h4>Do Not Hack Label</h4>
-        <button type="button" class="btn btn-success" data-bind="click: printDoNotHack">Print Do Not Hack</button>
+        <h1>Members Labels: <span data-bind="text: status"></span></h1>
+        <button type="button" class="btn btn-large btn-success" data-bind="click: printDoNotHack">Print 'Do Not Hack' Label</button>
+        <button type="button" class="btn btn-large btn-success" data-bind="click: printMembersBox">Print Members Box Label</button>
     </div>
 
 
+    <h1>Helpers:</h1>
     <div>
-        <h4>Members Box Label</h4>
-        <button type="button" class="btn btn-success" data-bind="click: printMembersBox">Print Box Label</button>
+
+        <button type="button" class="btn btn-large success" data-bind="click: printHowToRegister">Print 'How To Register' Label</button>
+        <button type="button" class="btn btn-large btn-default" data-toggle="modal" data-target="#badger_text_label_dialog">Print Text Label</button>
     </div>
 
+    <h1>Maintenance:</h1>
 
     <div>
-        <h4>How To Register Label</h4>
-        <button type="button" class="btn btn-success" data-bind="click: printHowToRegister">Print How To Register</button>
+        <button type="button" class="btn btn-warning" data-bind="click: clearPrintQueue">Clear Print Queue</button>
+        <button type="button" class="btn btn-success" data-bind="click: getPrintQueue">Refresh Print Queue</button>
+        <button type="button" class="btn btn-success" data-bind="click: labelsRefilled">Labels Refilled</button>
     </div>
 
-
+    <h1>Print Queue:</h1>
     <div>
-        <h4>Genera Text Label</h4>
-        <div>
-            <textarea cols="100" rows="8" data-bind="value:textBlock"></textarea>
-        </div>
-        <button type="button" class="btn btn-success" data-bind="click: printTextBlock">Print Text</button>
-    </div>
-
-
-    <div>
-        <h3>Print Queue</h3>
         <ul data-bind="foreach: printJobs">
             <li data-bind="text: name"></li>
         </ul>
-        <button type="button" class="btn btn-success" data-bind="click: getPrintQueue">Refresh</button>
     </div>
-
-    <h3>Maintenance</h3>
-
-    <div>
-        <h4>Clear Print Queue</h4>
-        <button type="button" class="btn btn-success" data-bind="click: clearPrintQueue">Clear Print Queue</button>
-    </div>
+</div>
 
 
-    <div>
-        <h4>Labels Refilled</h4>
-        <button type="button" class="btn btn-success" data-bind="click: labelsRefilled">Labels Refilled</button>
+<div id="badger_text_label_dialog" style="display:none" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h3 class="modal-title">Text Label</h3>
+            </div>
+
+            <div class="modal-body form-horizontal">
+                <div class="control-group">
+                    <label class="control-label">Label Text</label>
+                    <div class="controls">
+                        <textarea cols="100" rows="8" data-bind="value:textBlock"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bind="click: printTextBlock" data-dismiss="modal">Print</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+
+        </div>
+
     </div>
 </div>

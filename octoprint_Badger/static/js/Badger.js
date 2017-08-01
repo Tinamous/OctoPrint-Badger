@@ -114,7 +114,7 @@ $(function() {
         self.printJobs = ko.observableArray([]);
 
         self.getPrintQueue = function() {
-            //self.printJobs([{jobId:1, name:"Test"}])
+            self.printJobs([{jobId:"Loading", name:"Loading..."}])
             OctoPrint.simpleApiGet(self.pluginId, {request:"getPrintQueue"})
                 .done(function(response) {
                     console.log("Get Print Queue Response: " + response)
@@ -130,8 +130,11 @@ $(function() {
 
         self.clearPrintQueue = function() {
             console.log("Requesting clear print queue")
-            self.status("Clearing Print Queue...");
-            OctoPrint.simpleApiCommand(self.pluginId, "ClearPrintQueue", {}, {});
+            //self.status("Clearing Print Queue...");
+            OctoPrint.simpleApiCommand(self.pluginId, "ClearPrintQueue", {}, {})
+                .done(function() {
+                    self.getPrintQueue();
+                })
         };
 
         self.labelsRefilled = function() {
