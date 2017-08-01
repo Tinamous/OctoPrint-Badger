@@ -3,27 +3,18 @@ import logging
 # Printing label using CUPS printing and canvas
 # taken from MakeSpace Badger: https://github.com/Makespace/Badger
 class CupsLabelPrinter():
-	def __init__(self, ):
-		# Temp one until assigned through initialize
-		# which may not be called when getting the printers.
-		self._logger = logging.getLogger('CupsLabelPrinter')
-		self._logger.info("CupsLabelPrinter ctor")
 
 	# Used by on_settings_load before the class is initialized.
 	def get_printers(self):
-		self._logger.info("Getting CUPS printers before initialize.")
 		import cups
 
 		conn = cups.Connection()
 		cups_printers = conn.getPrinters()
-		self._logger.info("Got Cups Printers: {0}".format(self._printers))
 
 		printers = []
 
 		for printer in cups_printers:
 			printers.append(printer)
-			self._logger.info("Printer: {0}".format(printer))
-			self._logger.info("Printer... {0}".format(printers[printer]["device-uri"]))
 
 		return printers
 
@@ -91,7 +82,7 @@ class CupsLabelPrinter():
 			printer = self._settings.get(["printer"])
 			self._logger.info("Printing '{0}' to printer: {1}".format(filename, printer))
 			# Doesn't appear to be getting cancelled automatically.
-			job_id = self._conn.printFile(printer, filename, "Badge", [{'job-cancel-after':'60'}])
+			job_id = self._conn.printFile(printer, filename, "Badge", {'job-cancel-after':'60'})
 			self._logger.info("Label was sent to the printer. Job id: {0}".format(job_id))
 
 			if job_id == 0:

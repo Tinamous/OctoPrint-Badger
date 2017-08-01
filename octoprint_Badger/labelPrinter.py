@@ -9,7 +9,7 @@ from .largeAddressLabel import LargeAddressLabel
 # and delegation of the label printing task to the
 # appropriate label printer.
 class LabelPrinter():
-	def __init__(self, ):
+	def __init__(self):
 		# Temp one until assigned through initialize
 		# which may not be called when getting the printers.
 		self._logger = logging.getLogger('LabelPrinter')
@@ -22,6 +22,7 @@ class LabelPrinter():
 			return cupsPrinter.get_printers()
 		except:
 			# If CUPS printing failed offer only the null printer.
+			self._logger.warn("Cups printer failed. Returning Null Printer")
 			return ["Null Printer"]
 
 	def initialize(self, logger, settings, data_folder):
