@@ -1,19 +1,23 @@
-caseWidth = 110;
+caseWidth = 140; // Was 110 but label writer sticks out 10mm on each side 
 caseHeight = 45;
 $fn=120;
 
-rfidCaseLength = 125;
+//rfidCaseLength = 125;
+rfidCaseLength = 113;
+wallWidth = 2;
+// Allow for the join esction lip.
+piCaseWallWidth = wallWidth + 0.2;
 
 module showModels() {
     // Our case is 110mm wide
     // dymo is 125 so hase 15mm overhand (7.5mm each side)
     // back Pi case to start 70mm in (at our y=0)
     // front RFID case to be about 50mm in front of the printer
-    translate([-7.5,-65,caseHeight + 00]) {
-        %labelWriter();
+    translate([(caseWidth - 125)/2,-65,caseHeight + 00]) {
+       // %labelWriter();
     }
 
-    translate([(caseWidth - 56)/2, 35, 5]) {
+    translate([(caseWidth - 20)/2, 35, 5]) {
         %raspberryPi();
     }
 
@@ -24,7 +28,7 @@ module showModels() {
     }
     
     translate([(caseWidth - 57)/2, -rfidCaseLength, caseHeight-20]) {    
-        %rfidModule();
+        //%rfidModule();
     }
 }
 
@@ -57,7 +61,7 @@ module raspberryPi() {
 }
 
 module piScrewHoles(d) {
-h = 60;
+h = 40;
     translate([3.5,3.5,0]) {
         cylinder(d=d,h=h);
     }
@@ -162,15 +166,10 @@ module piCase() {
         }
         union() {
             // Hollow the part below the printer
-            translate([1.6,-1,1.6]) {
-                cube([caseWidth-3.2, 62, caseHeight-3.2]);
+            translate([piCaseWallWidth,-1,piCaseWallWidth]) {
+                cube([caseWidth-(piCaseWallWidth*2), 62, caseHeight-(piCaseWallWidth*2)]);
             }
-            
-            // Base cutout for electronics insertion.
-            translate([baseCutoutOffset,-0.1,-1]) {
-                //cube([caseWidth- (2* baseCutoutOffset), 25, 5]);
-            }
-            
+                        
             // Put a curve in the top to help 
             translate([caseWidth/2,60,caseHeight-5]) {
                 rotate([0,0,90]) {
@@ -180,8 +179,8 @@ module piCase() {
             
             // This section overlaps with the back so ensure we have 
             // the screwholes set here as well.
-            translate([(caseWidth - 56)/2,-10+60,-5]) {
-                piScrewHoles(3.6);
+            translate([(caseWidth - 20)/2,60 - 10,-5]) {
+                #piScrewHoles(3.6);
             }
         }
     }
@@ -193,16 +192,10 @@ module piCase() {
             union() {
                 cube([caseWidth, 80, 80]);
             }
-            union() {
-                // Base cutout for electronics insertion.
-                translate([10,-1,-1]) {
-                    // Leave closed but add holes for Raspberry Pi mounting
-                    //#cube([caseWidth-20, 20, 5]);
-                }
-                
+            union() {               
                 // Hollow the part below the printer
-                translate([1.6,-0.1,1.6]) {
-                    cube([caseWidth-3.2, 80-0.9, caseHeight-3.2]);
+                translate([piCaseWallWidth,-0.1,piCaseWallWidth]) {
+                    cube([caseWidth-(piCaseWallWidth*2), 80-0.9, caseHeight-(piCaseWallWidth*2)]);
                 }
                 
                 // Curve the end for the printer to sit into
@@ -211,10 +204,12 @@ module piCase() {
                         cylinder(d=130, h=caseWidth+0.2);
                     }
                 }
-                // Cut out the square recess for printer cabel
-                translate([(caseWidth-74)/2,-1,caseHeight-2]) {
-                    cube([74, 80, 34]);
+                
+                // Cut out the square recess for printer cable
+                translate([(caseWidth-74)/2,-1,caseHeight-(piCaseWallWidth+1)]) {
+                    #cube([74, 80, 38 - piCaseWallWidth]);
                 }
+                
                 // Repeat cutout but to include part of the top section as well.
                 translate([(caseWidth-74)/2,-1,caseHeight-2]) {
                     cube([74, 54 + 9, 40]);
@@ -222,73 +217,132 @@ module piCase() {
                 
                 // Hole for the power connector.
                 powerHoleDiameter = 12.6;
-                translate([caseWidth/2,82,40]) {
+                //translate([caseWidth/2,82,70]) {
+                translate([50,82,10 + 5]) {
                     rotate([90,0,0]) {
                         cylinder(d=powerHoleDiameter, h=5);
                     }
                 }
                 
-                translate([(caseWidth - 56)/2,-10,-5]) {
-                    #piScrewHoles(3.6);
+                // Hole for USB lead for Pi.
+                translate([15,75,10]) {
+                        #cube([18, 10, 10]);
+                }
+                
+                // Holes for Raspberry Pi.
+                translate([(caseWidth - 20)/2,-10,-5]) {
+                    piScrewHoles(3.6);
                 }
             }
         }
     }
     
     // Add joint senction to help join to the rfid section
-
     difference() {
-        union() {
-            // Connect to the rear section outer wall to slightlu
-            // inside as the connection section is slightly smaller
-            // than the actuall inner.
-            translate([0,0,0]) {
-                //goes 10mm inside the rear section
-                cube([caseWidth, 10, caseHeight]);
+        union() {           
+            // Use RFID wall width (smaller than this)
+            // to align the joint section with the rfid case
+            
+            translate([wallWidth+0.1,-15,wallWidth+0.1]) {
+                // wallWidth is wall width
+                // so 0.1mm smaller all around
+                //cube([caseWidth - 3.6, 25, caseHeight - 3.6]);
             }
-            translate([1.8,-15,1.8]) {
-                // 1.6mm is wall width
-                // so 0.2mm smaller all around
-                cube([caseWidth - 3.6, 25, caseHeight - 3.6]);
+            
+            translate([5,-15, wallWidth+0.1]) {
+                #cube([caseWidth-10, 25,1.6]);
+                translate([0,0,1.6/2]) {
+                    rotate([0,90,0]) {
+                        cylinder(d=4, h=caseWidth-10);
+                    }
+                }
             }
+            
+            // 2mm thick so drop down 2.1mm for thickness
+            // + fitting tollerance.
+            translate([5,-15,caseHeight - (wallWidth+1.7)]) {
+                #cube([caseWidth-10, 25,1.6]);
+                translate([0,0,1.6/2]) {
+                    rotate([0,90,0]) {
+                        cylinder(d=4, h=caseWidth-10);
+                    }
+                }
+            }
+            
+            // Side parts for bolts.
+            translate([wallWidth+0.1,-15,(caseHeight/2)-10]) {
+                cube([2, 25,20]);
+            }
+            
+            translate([caseWidth - (wallWidth+0.1+2),-15,(caseHeight/2)-10]) {
+                cube([2, 25,20]);
+            }
+            
+            // TODO: Add M4 Cylinder to top/bottom for latching.
         }
         union() {
-            translate([0,-15.001,0]) {
-                // Hollow out from the front to the rear sectoin
-                translate([3.2,-0.1,3.2]) {
-                    cube([caseWidth - 6.4, 25.2, caseHeight - 6.4]);
-                }
-                
+            translate([0,-15.001,0]) {                
                 translate([baseCutoutOffset,-0.1,0]) {
-                    cube([caseWidth - (2 * baseCutoutOffset), 40.2, 4]);
+                    //#cube([caseWidth - (2 * baseCutoutOffset), 40.2, 4]);
                 }
                 
                 // Add holes to allow the sections to be bolted together
-                
+                // Left
                 translate([10,7.5,-2]) {
-                    #cylinder(d=3, h=caseHeight+10);
-                }
-                                
-                translate([caseWidth/2,7.5,-2]) {
-                    #cylinder(d=3, h=caseHeight+10);
+                    cylinder(d=3.5, h=caseHeight+10);
                 }
                 
+                // Across the width                
+                translate([-10,7.5,caseHeight/2]) {
+                    rotate([0,90,0]) {
+                        #cylinder(d=3.5, h=caseWidth+20);
+                    }
+                }
+                // Right
                 translate([caseWidth-10,7.5,-2]) {
                     #cylinder(d=3, h=caseHeight+10);
                 }
             }
         }
-    }  
+    }     
     
+    // Add some text to the back behind the printer
+    translate([6,140-17,80-0.1]) {
+        linear_extrude(2) {
+            text("Do Not Hack", size=16);
+        }
+    }
 }
 
-
+module printerFrontArc() {
+    // Arc radius is 75mm.
+    difference() {
+        union() {
+            cylinder(r=80, h=2);
+        }
+        union() {
+            translate([0,0,-0.01]) {
+                cylinder(r=75, h=2.1);
+                // And cut off anything back from 15ish mm...
+                translate([-80,-65,0]) {
+                    cube([80*2, 80*2, 2.5]);
+                }
+            }
+        }
+    }
+}
 
 module rfidCase() {   
     
     difference() {
         union() {
             cube([caseWidth, rfidCaseLength , caseHeight]);
+            // Arc front inner is 75mm from the arc center
+            // so the arc center is 75mm back from the point
+            // that the arc center should be at.
+            translate([caseWidth/2,rfidCaseLength  - (41-75),caseHeight]) {
+                printerFrontArc();
+            }
         }
         union() {
             // Hollow the part below the printer
@@ -305,25 +359,30 @@ module rfidCase() {
                 // Add holes to allow the sections to be bolted together
                 
                 translate([10,7.5,-2]) {
-                    #cylinder(d=3, h=caseHeight+10);
+                    #cylinder(d=3.5, h=caseHeight+10);
                 }
                                 
-                translate([caseWidth/2,7.5,-2]) {
-                    #cylinder(d=3, h=caseHeight+10);
+                // Across the width                
+                translate([-10,7.5,caseHeight/2]) {
+                    rotate([0,90,0]) {
+                        #cylinder(d=3.5, h=caseWidth+20);
+                    }
                 }
                 
                 translate([caseWidth-10,7.5,-2]) {
-                    #cylinder(d=3, h=caseHeight+10);
+                    #cylinder(d=3.5, h=caseHeight+10);
                 }
             }
 
-            translate([10, 10, caseHeight-10]) {
+            // 90mm between centers on x
+            translate([(caseWidth - 90)/2, 10, caseHeight-10]) {
+                // 3.5mm works well for M3 bolts.
                 #rfidScrewHoles(3.5);
             }
             // Very small dent in the case
             // to highliht the position of the sensor.
-            translate([caseWidth/2, 37, caseHeight-0.4]) {
-                cylinder(d=57, h=2);
+            translate([caseWidth/2, 34, caseHeight-0.4]) {
+                //cylinder(d=50, h=2);
             }
         }
     }
@@ -391,9 +450,9 @@ color("blue") {
     */
 }
 
-translate([0,-rfidCaseLength,0]) {
+translate([0,-rfidCaseLength-50,0]) {
     color("green") {
-       rfidCase();
+       //rfidCase();
     }
 }
 
