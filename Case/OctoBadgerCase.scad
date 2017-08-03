@@ -33,7 +33,7 @@ module showModels() {
 
     if (printRfidSection) {        
         translate([(caseWidth - 57)/2, -rfidCaseLength -3, caseHeight-20]) {    
-            %rfidModule();
+          //  %rfidModule();
         }
     }
 }
@@ -439,8 +439,8 @@ module addRoundedNode() {
                         rotate([0,90,-0]) {
                             cylinder(d=caseHeight-(wallWidth*2), h=caseWidth - (wallWidth*2));
                         }
-                        translate([0,-2,-(caseHeight/2)+wallWidth]) {
-                            cube([caseWidth-(wallWidth*2),caseHeight/2+5,caseHeight-(wallWidth*2)]);
+                        translate([0,1,-(caseHeight/2)-2]) {
+                            cube([caseWidth-(wallWidth*2),caseHeight/2+5,caseHeight+4]);
                         }
                     }
                 }
