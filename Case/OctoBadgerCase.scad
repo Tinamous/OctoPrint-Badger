@@ -11,7 +11,7 @@ piCaseWallWidth = wallWidth + 0.2;
 //printAllAtOnce = true;
 printRfidSection = true;
 printPiSection = false;
-printPiEngines = true;
+printPiEngines = false;
 // If printing both at the same time then
 // don't bother with the joing section and holes.
 printAllAtOnce = printRfidSection && printPiSection;
