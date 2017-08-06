@@ -4,6 +4,7 @@ from .nullLabelPrinter import NullLabelPrinter
 from .cupsLabelPrinter import CupsLabelPrinter
 from .shippingLabel import ShippingLabel
 from .largeAddressLabel import LargeAddressLabel
+from .largeAddressLabelV2 import LargeAddressLabelV2
 
 # Responsible for label printer and label selection
 # and delegation of the label printing task to the
@@ -49,8 +50,11 @@ class LabelPrinter():
 		y_offset = int(self._settings.get(["yOffset"]))
 		date_format = self._settings.get(["dateFormat"])
 
+		# TODO: Replace this with a plugin version to look for SuperLabel sub classes.
 		if label_template == "99014 - Shipping":
 			return ShippingLabel(self._logger, self._data_folder, x_offset, y_offset, date_format)
+		elif label_template == "99012 - Large Address - Alternative":
+			return LargeAddressLabelV2(self._logger, self._data_folder, x_offset, y_offset, date_format)
 		else:
 			return LargeAddressLabel(self._logger, self._data_folder, x_offset, y_offset, date_format)
 

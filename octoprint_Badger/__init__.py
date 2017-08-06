@@ -59,7 +59,7 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			rfidReaderType="Null Tag Reader",
 			readerOptions=["None", "Null Tag Reader", "Micro RWD HiTag2"],
 			labelTemplate="99012 - Large Address",
-			labelTemplates=["99012 - Large Address", "99014 - Shipping"],
+			labelTemplates=["99012 - Large Address","99012 - Large Address - Alternative", "99014 - Shipping"],
 			printer="Null Printer",
 			# Text X Offset in mm (Labels typically have a min of 5mm left margin
 			xOffset=6,
