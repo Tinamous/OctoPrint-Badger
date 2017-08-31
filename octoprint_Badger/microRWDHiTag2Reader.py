@@ -73,10 +73,9 @@ class MicroRWDHiTag2Reader():
 			print "Warning: Serial timeout happened"
 			return None
 		if (ord(response) == 0xD6):  # tag present
-			self._logger.info("0xD6 from reader: Tag present :-)")
 			serial_number = self.serial_port.read(4)
+			self._logger.info("0xD6: Tag reader read " + serial_number.encode('hex'))
 			# Convert to hex for the application to use.
-			self._logger.info("Tag reader read " + serial_number.encode('hex'))
 			return serial_number.encode('hex')
 		if (ord(response) == 0xC0):  # tag not present
 			#self._logger.info("0xC0 from reader: Tag not present")
@@ -100,5 +99,4 @@ class MicroRWDHiTag2Reader():
 		tag2 = self.tryTag()
 
 		if tag2 == tag:
-			self._logger.info("Tag seen: {0}".format(tag.encode('hex')))
 			return tag
