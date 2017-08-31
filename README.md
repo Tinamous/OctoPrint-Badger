@@ -19,4 +19,6 @@ See Notes section on setup.
 
 ## Configuration
 
+This is work in progress. Requires CUPS support to be installed. Please see the Notes folder for the time being.
+
 **TODO:** Describe your plugin's configuration options (if any).
