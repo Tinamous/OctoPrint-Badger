@@ -21,7 +21,7 @@ $(function() {
 
         self.notLoggedIn = ko.computed(function() {
             return !self.loginStateViewModel.isUser();
-        })
+        });
 
         self.onBeforeBinding = function () {
             self.settings = self.settingsViewModel.settings.plugins.badger;
@@ -32,64 +32,60 @@ $(function() {
                 return;
             }
 
-            // Any tag seen. This can probably be ignored
-            // as only Unknown Rfid Tags should be used for registration.
-            if (data.eventEvent == "RfidTagSeen") {
-                console.log("Badger: User tag seen. TagId:" + data.eventPayload.tagId);
-            }
+            switch (data.eventEvent) {
 
-            // If the tag was seen and it is unknown.
-            if (data.eventEvent == "UnknownRfidTagSeen") {
-                console.log("Badger: Unknown tag seen. TagId:" + data.eventPayload.tagId);
-                // If in normal mode, show a "Unknown Tag, please register" message
-                // If not logged in it won't be visible anyway
-                //self.unknownTagSeen(true);
-                // This needs to be cleared if the tag was used for registering.
-            }
+                // Any tag seen. This can probably be ignored
+                // as only Unknown Rfid Tags should be used for registration.
+                case "RfidTagSeen":
+                    console.log("Badger: User tag seen. TagId:" + data.eventPayload.tagId);
+                    return;
+                // If the tag was seen and it is unknown.
+                case "UnknownRfidTagSeen":
+                    console.log("Badger: Unknown tag seen. TagId:" + data.eventPayload.tagId);
+                    // If in normal mode, show a "Unknown Tag, please register" message
+                    // If not logged in it won't be visible anyway
+                    //self.unknownTagSeen(true);
+                    // This needs to be cleared if the tag was used for registering.
+                    return;
+                // If the tag was seen and it is unknown.
+                case data.eventEvent == "PrintDone":
+                    console.log("Print Done data: " + data);
+                    self.status("");
 
-            // If the tag was seen and it is unknown.
-            if (data.eventEvent == "PrintDone") {
-                console.log("Print Done data: " + data)
-                self.status("");
+                    var text = "<div>";
+                    text += "<ul class='icons-ul'>";
+                    text += "<li><span>Label Type: " + data.label_type + "</span></li>";
+                    text += "<li><span>Job Id: " + data.job_id + "</span></li>";
+                    text += "<li><span>Details: " + data.filename + "</span></li>";
+                    text += "</div>";
 
-                var text = "<div>";
-                text += "<ul class='icons-ul'>";
-                text += "<li><span>Label Type: " + data.label_type + "</span></li>";
-                text += "<li><span>Job Id: " + data.job_id + "</span></li>";
-                text += "<li><span>Details: " + data.filename + "</span></li>";
-                text += "</div>";
-
-                var options = {
-                        title: "Label Printed",
-                        text: text, //"Label printed: Label: " + data.label_type + ", Job Id: " + data.job_id + ", Details: " + data.filename,
-                        hide: false,
-                        type: "success"
+                    var options = {
+                            title: "Label Printed",
+                            text: text, //"Label printed: Label: " + data.label_type + ", Job Id: " + data.job_id + ", Details: " + data.filename,
+                            hide: false,
+                            type: "success"
+                        };
+                    self._showpopup(options, {});
+                    break;
+                case "PrintFailed":
+                    console.log("Print Failed data: " + data);
+                    self.status("");
+                    var options = {
+                        title: "Label Print Error",
+                        text: "An error occurred printing the label.",
+                        type: "error"
                     };
-                self._showpopup(options, {});
+                    self._showpopup(options, {});
+                    break;
             }
-
-            if (data.eventEvent == "PrintFailed") {
-                console.log("Print Failed data: " + data)
-                self.status("");
-                var options = {
-                    title: "Label Print Error",
-                    text: "An error occurred printing the label.",
-                    type: "error"
-                };
-                self._showpopup(options, {});
-            }
-
-            self.getPrintQueue();
         };
 
         self.onUserLoggedIn = function(user) {
-            //self.populateUsers();
-            //self.getWhosPrinting();
             self.getPrintQueue();
         };
 
         self.tagSeen = function() {
-            console.log("Requesting print Do Not Hack Label")
+            console.log("Requesting print Do Not Hack Label");
             self.status("Printing...");
             var payload = { tagId:'12345678' };
             OctoPrint.simpleApiCommand(self.pluginId, "TagSeen", payload, {});
@@ -105,16 +101,16 @@ $(function() {
             console.log("Requesting print members box label")
             self.status("Printing...");
             OctoPrint.simpleApiCommand(self.pluginId, "PrintMembersBox", {}, {});
-        }
+        };
 
         self.printHowToRegister = function() {
-            console.log("Requesting print How To Register Label")
+            console.log("Requesting print How To Register Label");
             self.status("Printing...");
             OctoPrint.simpleApiCommand(self.pluginId, "PrintHowToRegister", {}, {});
-        }
+        };
 
         self.printTextBlock = function() {
-            console.log("Requesting print Do Not Hack Label")
+            console.log("Requesting print Do Not Hack Label");
             self.status("Printing...");
             var payload = { text:self.textBlock() };
             OctoPrint.simpleApiCommand(self.pluginId, "PrintText", payload, {});
@@ -123,21 +119,20 @@ $(function() {
         self.printJobs = ko.observableArray([]);
 
         self.getPrintQueue = function() {
-            self.printJobs([{jobId:"Loading", name:"Loading..."}])
+            self.printJobs([{jobId:"Loading", name:"Loading..."}]);
             OctoPrint.simpleApiGet(self.pluginId, {request:"getPrintQueue"})
                 .done(function(response) {
-                    console.log("Get Print Queue Response: " + response)
+                    console.log("Get Print Queue Response: " + response);
                     // do something with the response
                     var mappedJobs = $.map(response.jobs, function(job){
                         return {jobId:job.jobId, name:"job " + job.jobId};
-                    })
+                    });
 
-                    console.log("Printer info: " + response.printerInfo)
-                    self.printerInfo(response.printerInfo)
+                    console.log("Printer info: " + response.printerInfo);
+                    self.printerInfo(response.printerInfo);
 
                     self.printJobs(mappedJobs)
                 });
-
         };
 
         self.clearPrintQueue = function() {

@@ -143,10 +143,6 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			self._logger.error("Error returning jobs. {0}".format(e))
 			raise
 
-
-
-
-
 	# API POST command options
 	def get_api_commands(self):
 		self._logger.info("On api get commands")

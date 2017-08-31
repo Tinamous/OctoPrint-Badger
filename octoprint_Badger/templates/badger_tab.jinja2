@@ -24,6 +24,7 @@
 
     <h1>Print Queue:</h1>
     <div>
+        <button data-bind="click: getPrintQueue" class="btn btn-default">Refresh</button>
         <ul data-bind="foreach: printJobs">
             <li data-bind="text: name"></li>
         </ul>
