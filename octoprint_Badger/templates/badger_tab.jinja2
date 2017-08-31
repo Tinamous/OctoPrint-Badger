@@ -17,14 +17,14 @@
     <h1>Maintenance:</h1>
 
     <div>
-        <button type="button" class="btn btn-warning" data-bind="click: clearPrintQueue">Clear Print Queue</button>
-        <button type="button" class="btn btn-success" data-bind="click: getPrintQueue">Refresh Print Queue</button>
+
         <button type="button" class="btn btn-success" data-bind="click: labelsRefilled">Labels Refilled</button>
     </div>
 
     <h1>Print Queue:</h1>
     <div>
-        <button data-bind="click: getPrintQueue" class="btn btn-default">Refresh</button>
+        <button type="button" class="btn btn-warning" data-bind="click: clearPrintQueue">Clear Print Queue</button>
+        <button type="button" class="btn btn-success" data-bind="click: getPrintQueue">Refresh Print Queue</button>
         <ul data-bind="foreach: printJobs">
             <li data-bind="text: name"></li>
         </ul>
