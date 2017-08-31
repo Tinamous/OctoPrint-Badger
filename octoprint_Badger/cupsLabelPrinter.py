@@ -98,13 +98,13 @@ class CupsLabelPrinter():
 			# ... and print it
 			import cups
 			printer = self._settings.get(["printer"])
-			self._logger.info("Printing '{0}' to printer: {1}".format(filename, printer))
+			self._logger.info("Sending file '{0}' to printer: {1}".format(filename, printer))
 			# Doesn't appear to be getting cancelled automatically.
-			job_id = self._conn.printFile(printer, filename, "Badge", {'job-cancel-after':'60'})
+			job_id = self._conn.printFile(printer, filename, "Badger Label", {})
 			self._logger.info("Label was sent to the printer. Job id: {0}".format(job_id))
 
 			if job_id == 0:
-				self._logger.error("Label {0} did not print correctly.".format(filename))
+				self._logger.error("Label '{0}' did not print correctly.".format(filename))
 
 			return job_id
 
@@ -120,7 +120,7 @@ class CupsLabelPrinter():
 
 
 	def get_print_queue(self):
-		self._logger.warn("Cups printer returning jobs...")
+		self._logger.warn("Getting jobs from Cups...")
 
 		##attributes = self._conn.getJobAttributes(job, ["job-cancel-after", "job-hold-until",
 		##                                               "job-printer-state-message", "job-printer-state-reasons"])

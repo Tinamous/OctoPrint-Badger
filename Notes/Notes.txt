@@ -7,11 +7,10 @@ From: https://community.ubnt.com/t5/UniFi-Wireless/RPI-Dashbutton-Turn-Raspberry
 sudo apt-get install libcups2-dev libcupsimage2-dev g++ cups cups-client
 
 
-- Linux drivers: http://www.dymo.com/en-US/dymo-label-sdk-and-cups-drivers-for-linux-dymo-label-sdk-cups-linux-p--1#
+- Linux drivers: Download from: http://www.dymo.com/en-US/dymo-label-sdk-and-cups-drivers-for-linux-dymo-label-sdk-cups-linux-p--1#
 
-wget ....
-
-wget https://github.com/BookSwapSteve/OctoPrint-Badger/raw/master/Notes/dymo-cups-drivers-1.4.0.tar.gz
+Or get it from the project repository...
+wget https://github.com/Tinamous/OctoPrint-Badger/raw/master/Notes/dymo-cups-drivers-1.4.0.tar.gz
 
 tar xvf dymo-cups-drivers-1.4.0.tar.gz
 cd dymo-cups-drivers-1.4.0/

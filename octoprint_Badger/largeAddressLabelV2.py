@@ -37,7 +37,7 @@ class LargeAddressLabelV2(SuperLabel):
 			#####################################################
 			# Use pdfgen to create our badge...
 			#####################################################
-			filename = self._data_folder + "\large-address-donothack.pdf"
+			filename = self._data_folder + "/large-address-donothack.pdf"
 			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
 			# Configurable X-Offset to improve alignment
@@ -114,7 +114,7 @@ class LargeAddressLabelV2(SuperLabel):
 			#####################################################
 			# Use pdfgen to create our badge...
 			#####################################################
-			filename = self._data_folder + "\large-address-members-box.pdf"
+			filename = self._data_folder + "/large-address-members-box.pdf"
 			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
 			# Configurable X-Offset to improve alignment

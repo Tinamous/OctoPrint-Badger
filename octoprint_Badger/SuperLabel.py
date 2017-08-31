@@ -23,7 +23,7 @@ class SuperLabel():
 			#####################################################
 			# Use pdfgen to create our badge...
 			#####################################################
-			filename = self._data_folder + "\large-address-register.pdf"
+			filename = self._data_folder + "/large-address-register.pdf"
 			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
 			x_align = self._x_offset
@@ -76,7 +76,7 @@ class SuperLabel():
 
 		try:
 			# Setup the contents of the label.
-			filename = self._data_folder + "\large-address-text.pdf"
+			filename = self._data_folder + "/large-address-text.pdf"
 			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
 			c.setFont("Helvetica", 14)
