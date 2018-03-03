@@ -1,5 +1,5 @@
 caseWidth = 140; // Was 110 but label writer sticks out 10mm on each side 
-caseHeight = 45;
+caseHeight = 50; //45
 $fn=120;
 
 //rfidCaseLength = 125;
@@ -10,11 +10,16 @@ piCaseWallWidth = wallWidth + 0.2;
 
 //printAllAtOnce = true;
 printRfidSection = true;
-printPiSection = false;
-printPiEngines = false;
+printPiSection = true;
+printPiEngines = true;
 // If printing both at the same time then
 // don't bother with the joing section and holes.
 printAllAtOnce = printRfidSection && printPiSection;
+
+includeSideButtons = true;
+switchCutoutDiameter = 29;
+
+includeUsbHole = false;
 
 module showModels() {
     // Our case is 110mm wide
@@ -26,7 +31,8 @@ module showModels() {
     }
 
     if (printPiSection) {
-        translate([(caseWidth - 20)/2, 35, 5]) {
+        // Place the Pi dead centeral.
+        translate([(caseWidth - 56)/2, 35, 5]) {
             %raspberryPi();
         }
     }
@@ -165,6 +171,8 @@ module labelWriter() {
 baseCutout = 100;
 baseCutoutOffset = (caseWidth - baseCutout)/2;
 
+// Rear half of the case containing the Raspberry
+// Pi.
 module piCase() {
     
     
@@ -188,7 +196,7 @@ module piCase() {
             
             // This section overlaps with the back so ensure we have 
             // the screwholes set here as well.
-            translate([(caseWidth - 20)/2,60 - 10,-5]) {
+            translate([(caseWidth - 56)/2,60 - 10,-5]) {
                 #piScrewHoles(3.6);
             }
         }
@@ -199,7 +207,7 @@ module piCase() {
     translate([0,60,0]) {
         difference() {
             union() {
-                cube([caseWidth, 80, 80]);
+                cube([caseWidth, 80, 35 + caseHeight]);
             }
             union() {               
                 // Hollow the part below the printer
@@ -227,19 +235,21 @@ module piCase() {
                 // Hole for the power connector.
                 powerHoleDiameter = 12.6;
                 //translate([caseWidth/2,82,70]) {
-                translate([50,82,10 + 5]) {
+                translate([15+9,82,10 + 5]) {
                     rotate([90,0,0]) {
                         cylinder(d=powerHoleDiameter, h=5);
                     }
                 }
                 
                 // Hole for USB lead for Pi.
-                translate([15,75,10]) {
-                        #cube([18, 10, 10]);
+                if (includeUsbHole) {
+                    translate([15,75,25]) {
+                            #cube([18, 10, 10]);
+                    }
                 }
                 
                 // Holes for Raspberry Pi.
-                translate([(caseWidth - 20)/2,-10,-5]) {
+                translate([(caseWidth - 56)/2,-10,-5]) {
                     piScrewHoles(3.6);
                 }
             }
@@ -318,7 +328,7 @@ module piCase() {
     }
     
     // Add some text to the back behind the printer
-    translate([6,140-17,80-0.1]) {
+    translate([6,140-17,35 + caseHeight-0.1]) {
         linear_extrude(2) {
             text("Do Not Hack", size=16);
         }
@@ -343,6 +353,19 @@ module printerFrontArc() {
     }
 }
 
+
+// Cutouts in left and right side for
+// pinball table style LEDs switches.
+module switchCutouts() {    
+    translate([-2, 35, caseHeight/2]) {
+        rotate([0,90,0]) {
+            #cylinder(d=switchCutoutDiameter, h=caseWidth + 4);
+        }
+    }
+}
+
+// Front half of the case that contains the
+// RFID reader and bittons.
 module rfidCase() {   
     
     difference() {
@@ -474,21 +497,22 @@ if (printPiSection) {
     color("blue") {
         piCase();
         
+        // Add "engines" to the side.
         if (printPiEngines) {
             translate([-35, 60+80, 40]) {
                 rotate([90,0,0]) {
                     landspeederEngine();
                 }
-                translate([20,-50,-5]) {
-                    cube([16,20,10]);
+                translate([22,-50,-5]) {
+                    cube([14,20,10]);
                 }
             }
             translate([caseWidth + 35, 60+80, 40]) {
                 rotate([90,0,0]) {
                     landspeederEngine();
                 }
-                translate([-36,-50,-5]) {
-                    cube([16,20,10]);
+                translate([-38,-50,-5]) {
+                    cube([14,20,10]);
                 }
             }
         }
@@ -498,7 +522,18 @@ if (printPiSection) {
 if (printRfidSection) {
     translate([0,-rfidCaseLength,0]) {
         color("green") {
-           rfidCase();
+            difference() {
+                union() {
+                    rfidCase();
+                }
+                union() {
+                    // Addd holes in the sides for switches
+                    // pinball machine style :-)
+                    if (includeSideButtons) {
+                        switchCutouts();
+                    }
+                }
+            }
         }
     }
 }
