@@ -22,6 +22,7 @@ class PiGPIO:
 		self._left_led_mode = 0
 		self._right_led_mode = 0
 
+		self._both_puttons_pressed = False
 		self._leds_flash_on = False
 		self._timer = RepeatedTimer(0.25, self.timer_tick, None, None, True)
 		self._timer.start()
@@ -56,7 +57,8 @@ class PiGPIO:
 
 	def is_left_button_pressed(self):
 		import RPi.GPIO as GPIO
-		return GPIO.input(self._left_button_pin)
+		# Buttons are on pull-ups
+		return not GPIO.input(self._left_button_pin)
 
 	# State: 0 - off, 1 - on, 2 - blink
 	def set_left_button_led(self, state):
@@ -66,7 +68,8 @@ class PiGPIO:
 
 	def is_right_button_pressed(self):
 		import RPi.GPIO as GPIO
-		return GPIO.input(self._right_button_pin)
+		# Buttons are on pull-ups
+		return not GPIO.input(self._right_button_pin)
 
 	# State: 0 - off, 1 - on, 2 - blink
 	def set_right_button_led(self, state):
@@ -97,7 +100,14 @@ class PiGPIO:
 
 		# Whilst we are on a timer tick..
 		if self.is_left_button_pressed() & self.is_right_button_pressed():
-			payload = dict()
-			self._event_bus.fire("BothButtonsPressed", payload)
+			# Only fire the event once allowing for the buttons to
+			# be released.
+			if not self._both_puttons_pressed:
+				self._both_puttons_pressed = True
+				payload = dict()
+				self._event_bus.fire("BothButtonsPressed", payload)
+		else:
+			self._both_puttons_pressed = False
+
 
 
