@@ -1,8 +1,10 @@
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import mm
-
 import datetime
-from .SuperLabel import SuperLabel
+
+from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas
+
+from octoprint_Badger.Labels.SuperLabel import SuperLabel
+
 
 # Defines the smaller label (89x36). Dymo: 99012
 class LargeAddressLabel(SuperLabel):

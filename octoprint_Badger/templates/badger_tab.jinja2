@@ -4,6 +4,29 @@
         <h1>Members Labels: <span data-bind="text: status"></span></h1>
         <button type="button" class="btn btn-large btn-success" data-bind="click: printDoNotHack">Print 'Do Not Hack' Label</button>
         <button type="button" class="btn btn-large btn-success" data-bind="click: printMembersBox">Print Members Box Label</button>
+        <button type="button" class="btn btn-large btn-success" data-bind="click: printNameBadge">Print Name Badge</button>
+        <button type="button" class="btn btn-large btn-success" data-bind="click: printHackMe">Print Hack Me</button>
+    </div>
+
+    <div>
+        <h1>Badger Settings:</h1>
+         <div class=form-horizontal">
+            <div class="control-group">
+                <label class="control-label">Name:</label>
+                <div class="controls">
+                    <input type="text" class="form-control" data-bind="value:badgerName">
+                </div>
+            </div>
+        </div>
+        <div class=form-horizontal">
+            <div class="control-group">
+                <label class="control-label">Comment:</label>
+                <div class="controls">
+                    <input type="text" class="form-control" data-bind="value:badgerComment">
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-large btn-success" data-bind="click: updateBadgerSettings">Update</button>
     </div>
 
 
@@ -17,7 +40,6 @@
     <h1>Maintenance:</h1>
 
     <div>
-
         <button type="button" class="btn btn-success" data-bind="click: labelsRefilled">Labels Refilled</button>
     </div>
 

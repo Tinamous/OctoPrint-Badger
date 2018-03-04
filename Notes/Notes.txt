@@ -36,6 +36,8 @@ Connect Dymo printer.
 Add Dymo, set Media size to 11356 (White Name Badge - need to change this to something smaller)
 Print Quality: Barcodes and Graphics)
 
+NB:99012 actual label (Large Address 36mm x 89mm)
+
 connection: usb://DYMO/LabelWriter%20450?serial=01010112345600
 
 

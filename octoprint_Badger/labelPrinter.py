@@ -1,10 +1,10 @@
 import logging
 
-from .nullLabelPrinter import NullLabelPrinter
+from octoprint_Badger.Labels.largeAddressLabel import LargeAddressLabel
+from octoprint_Badger.Labels.largeAddressLabelV2 import LargeAddressLabelV2
+from octoprint_Badger.Labels.shippingLabel import ShippingLabel
 from .cupsLabelPrinter import CupsLabelPrinter
-from .shippingLabel import ShippingLabel
-from .largeAddressLabel import LargeAddressLabel
-from .largeAddressLabelV2 import LargeAddressLabelV2
+from .nullLabelPrinter import NullLabelPrinter
 
 # Responsible for label printer and label selection
 # and delegation of the label printing task to the
@@ -73,6 +73,14 @@ class LabelPrinter():
 	# Print a generic text label
 	def print_text_label(self, text):
 		job_id = self._actualLabelPrinter.print_text_label(text)
+		return job_id
+
+	def print_name_badge_label(self, name, comment):
+		job_id = self._actualLabelPrinter.print_name_badge_label(name, comment)
+		return job_id
+
+	def print_hack_me_label(self, label_serial_number):
+		job_id = self._actualLabelPrinter.print_hack_me_label(label_serial_number)
 		return job_id
 
 	# Print how to register label for when the user has tagged the rfid sensor

@@ -53,6 +53,16 @@ class NullLabelPrinter():
 		self._logger.warn("Text label saved to: {0}".format(filename))
 		return 3
 
+	def print_name_badge_label(self, name, comment):
+		filename = self._label.create_name_badge_label(name, comment)
+		self._logger.warn("Name badge label saved to: {0}".format(filename))
+		return 5
+
+	def print_hack_me_label(self, label_serial_number, removeAfter):
+		filename = self._label.create_hack_me_label(label_serial_number, removeAfter)
+		self._logger.warn("Hack me label saved to: {0}".format(filename))
+		return 6
+
 	def print_how_to_register(self, fob_id):
 		self._logger.warn("Null Label printer printing how to register label...")
 		filename = self._label.create_register_label(fob_id)

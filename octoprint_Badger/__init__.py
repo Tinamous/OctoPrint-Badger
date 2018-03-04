@@ -6,6 +6,7 @@ import flask
 import logging
 import logging.handlers
 import time
+import sys
 
 import octoprint.plugin
 from octoprint.events import eventManager, Events
@@ -15,6 +16,9 @@ from flask.ext.login import current_user
 from .tagReader import TagReader
 from .labelPrinter import LabelPrinter
 from .nullTagReader import NullTagReader
+
+from .mockGPIO import MockGPIO
+from .piGPIO import PiGPIO
 
 class BadgerPlugin(octoprint.plugin.StartupPlugin,
                    octoprint.plugin.ShutdownPlugin,
@@ -27,6 +31,10 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 	def __init__(self):
 		self._printers = ["Null Printer", "DYMO_LabelWriter_450", "Another Printer"]
 		self._reader = None
+		self._gpio = None
+		# TODO: Initialize these from database.
+		self._labels_printed_this_roll = 0
+		self._total_labels_printed_count = 0
 
 	def initialize(self):
 		self._logger.setLevel(logging.DEBUG)
@@ -39,6 +47,8 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		self.initialize_printers()
 		# Initialzie the rfid tag reader
 		self.initialize_tag_reader()
+		# Initialze GPIO handling
+		self.initialize_gpio()
 
 	def on_shutdown(self):
 		self._logger.info("Badger on_shutdown...")
@@ -60,6 +70,12 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			readerOptions=["None", "Null Tag Reader", "Micro RWD HiTag2"],
 			labelTemplate="99012 - Large Address",
 			labelTemplates=["99012 - Large Address","99012 - Large Address - Alternative", "99014 - Shipping"],
+			noButtonOption="DoNotHack",
+			leftButtonOption="NameBadge",
+			rightButtonOption="MembersBox",
+			buttonOptions=["DoNotHack","NameBadge","MembersBox","HackMe"],
+			bothButtonsOption="HackMe",
+			bothButtonsOptions=["HackMe","LabelsReplaced"],
 			printer="Null Printer",
 			# Text X Offset in mm (Labels typically have a min of 5mm left margin
 			xOffset=6,
@@ -154,6 +170,10 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			PrintDoNotHack=[],
 			# Print label for members bos
 			PrintMembersBox=[],
+			# Print a traditional name badge
+			PrintNameBadge=[],
+			# Print a "Hack Me" label
+			PrintHackMe=[],
 			# Print text
 			PrintText=["text"],
 			# Print the how to register label
@@ -164,6 +184,8 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			# Indicate that the labels have been replaced
 			# reset the print counter.
 			LabelsRefilled=[],
+			# Update name badge Badger setting
+			UpdateNameBadge=["badgerName","badgerComment"]
 		)
 
 	# API POST command
@@ -182,6 +204,10 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			self.print_do_not_hack_label(user)
 		elif command == "PrintMembersBox":
 			self.print_members_box_label(user)
+		elif command == "PrintNameBadge":
+			self.print_members_name_badge(user)
+		elif command == "PrintHackMe":
+			self.print_hack_me_label(user)
 		elif command == "PrintText":
 			self.print_text_label(user, data["text"])
 		elif command == "PrintHowToRegister":
@@ -190,6 +216,8 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			self._labeller.clear_print_queue()
 		elif command=="LabelsRefilled":
 			self.labels_refilled()
+		elif command=="UpdateNameBadge":
+			self._logger.error("Update Name Badge not implemented yet: {0}".format(command))
 		else:
 			self._logger.error("Unknown command: {0}".format(command))
 
@@ -250,6 +278,8 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		# Event may come from us, or another source (e.g. Who's Printing plugin).
 		if event == "RfidTagSeen":
 			self.handle_rfid_tag_seen_event(payload)
+		elif event == "BothButtonsPressed":
+			self.handle_both_buttons_ressed(payload)
 
 	##~~ Printer handling
 
@@ -279,7 +309,7 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			self.fire_print_started(filename)
 			job_id = self._labeller.print_do_not_hack_label(user, removeAfter, label_serial_number)
 			self.log_label_printed(job_id, label_type, label_serial_number, user, removeAfter);
-			self.fire_print_done(filename, job_id, label_type)
+			self.fire_print_done(filename, job_id, label_type, 1, label_serial_number, removeAfter)
 		except Exception as e:
 			self._logger.error("Failed to print do not hack label. Error: {0}".format(e))
 			self.fire_print_failed(filename, label_type)
@@ -299,6 +329,52 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		except Exception as e:
 			self._logger.error("Failed to print members box label. Error: {0}".format(e))
 			self.fire_print_failed(filename, label_type)
+
+	def print_members_name_badge(self, user):
+		self._logger.info("Print name badge. ")
+		label_type = "Name Badge"
+
+		user_settings = user["settings"]
+		displayName = user_settings.get("displayName")
+		badgerName = user_settings.get("badgerName")
+		badgerComment = user_settings.get("badgerComment")
+
+		if not badgerName:
+			self._logger.error("Can't print name badge, no badger name specified")
+			# for now, use the users setting until they have set their badger name.
+			badgerName = displayName
+			return
+
+		try:
+			self._logger.info("Printing name badge label......")
+			self.fire_print_started("name badge")
+			job_id = self._labeller.print_name_badge_label(badgerName, badgerComment)
+			self.log_label_printed(job_id, label_type, badgerName, user)
+			self.fire_print_done("name badge", job_id, label_type)
+		except Exception as e:
+			self._logger.error("Failed to print name badge label. Error: {0}".format(e))
+			self.fire_print_failed("name badge", label_type)
+
+	def print_hack_me_label(self):
+		self._logger.info("Printing hack me label.")
+		label_type = "Hack Me"
+
+		try:
+			# Compute when the member should remove the item.
+			# Set in plugin config. Maybe user dependant as well?
+			removeAfterMonths = int(self._settings.get(["removeAfterMonths"]))
+			removeAfter = datetime.date.today() + datetime.timedelta(removeAfterMonths * 365 / 12)
+
+			# Stores the label details and returns the serial number generated
+			label_serial_number = self.get_label_serial_number(None, removeAfter);
+
+			self.fire_print_started("hack me")
+			job_id = self._labeller.print_hack_me_label(label_serial_number, removeAfter)
+			self.log_label_printed(job_id, label_type, label_serial_number, None, removeAfter);
+			self.fire_print_done("hack me", job_id, label_type, 1, label_serial_number, removeAfter)
+		except Exception as e:
+			self._logger.error("Failed to print hack me label. Error: {0}".format(e))
+			self.fire_print_failed("hack me", label_type)
 
 	def print_text_label(self, user, text):
 		label_type = "Text Label"
@@ -327,6 +403,7 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 
 	def labels_refilled(self):
 		self._logger.info("Labels refilled. ")
+		self._labels_printed_this_roll = 0
 		# TODO: Update the database.
 
 	##~~ RFID Tag Handling
@@ -336,6 +413,10 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		self._reader.initialize()
 
 	def handle_rfid_tag_seen_event(self, payload):
+		# set the LEDs flashing to show we are processing the tag
+		self._gpio.set_left_button_led(2)
+		self._gpio.set_right_button_led(2)
+
 		tag_id = payload["tagId"]
 		self._logger.info("RFID Tag (Event) Seen: " + tag_id)
 
@@ -343,13 +424,77 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		pluginData = dict(eventEvent="RfidTagSeen", eventPayload=payload)
 		self._plugin_manager.send_plugin_message(self._identifier, pluginData)
 
+		labels_replaced_tag_id = self._settings.get(["labelsReplacedTagId"])
+		if tag_id == labels_replaced_tag_id:
+			self._logger.info("RFID Tag matches labels replaced tag. No further action needed...")
+			self.labels_refilled()
+			return
+
 		# Find the user this tag belongs to
 		user = self.find_user_from_tag(tag_id)
 
 		if (user == None):
 			self.print_how_to_register(tag_id)
 		else:
-			self.print_do_not_hack_label(user)
+			label_type = self.get_label_type_selected()
+
+			if label_type == "DoNotHack":
+				self.print_do_not_hack_label(user)
+			elif label_type == "NameBadge":
+				self.print_members_name_badge(user)
+			elif label_type == "MembersBox":
+				self.print_members_box_label(user)
+			elif label_type == "HackMe":
+				self.print_hack_me_label(user)
+			else:
+				# Fall back to DoNotHack for an unknown label type...
+				self.print_do_not_hack_label(user)
+
+		# restore LEDs to on state
+		self._gpio.set_left_button_led(1)
+		self._gpio.set_right_button_led(1)
+
+	# Determine what button is pressed and return the label
+	# type defined for that button.
+	def get_label_type_selected(self):
+
+		# No option for both buttons pressed as that needs 3 hands
+		# Both button pressed is reserved to indicate the labels have
+		# been replaced.
+
+		if self._gpio.is_left_button_pressed():
+			return self._settings.get(["leftButtonOption"])
+		if self._gpio.is_right_button_pressed():
+			return self._settings.get(["rightButtonOption"])
+
+		return self._settings.get(["noButtonOption"])
+
+
+	##~~ GPIO handling
+
+	def initialize_gpio(self):
+
+
+		# If we are actually on a Pi then replace the mock
+		# with the real GPIO class.
+		if sys.platform == "linux2":
+			self._gpio = PiGPIO(self._logger, self._settings, self._event_bus)
+		else:
+			self._gpio = MockGPIO(self._logger, self._settings, self._event_bus)
+
+		# Initialize the GPIO ports for switch/leds.
+		self._logger.info("Init GPIO")
+		self._gpio.initialize()
+
+	def handle_both_buttons_ressed(self, payload):
+		action = self._settings.get(["bothButtonsOption"])
+		# bothButtonsOptions = ["HackMe", "LabelsReplaced"],
+		if action == "HackMe":
+			self.print_hack_me_label()
+		elif action == "LabelsReplaced":
+			self.labels_refilled()
+		else:
+			self._logger.error("Unknown action for both buttons pressed")
 
 	##~~ General Implementation
 
@@ -359,11 +504,13 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		self._logger.info("Label Printed. Type: {0}, details: {1}".format(label_type, details))
         # TODO: Decrement the number of labels left on the roll.
 
+	# Set a serial number for the item stored (i.e. from the databsae.
+	# user mignt be null if printing a HACK ME item.
 	def get_label_serial_number(self, user, removeAfter):
 		# TODO: Store a new entry for a do not hack label
 		# created by user... and return the number of the label
 
-		label_number = 12
+		label_number = 14
 		label_number_prefix = self._settings.get(["labelSerialNumberPrefix"])
 		return "{0}-{1}".format(label_number_prefix, label_number)
 
@@ -373,12 +520,27 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		payload = dict(name=filename, path=data_folder, origin="local", file=filename + ".gcode")
 		self._event_bus.fire(Events.PRINT_STARTED, payload);
 
-	def fire_print_done(self, filename, job_id, label_type):
+	def fire_print_done(self, filename, job_id, label_type, number_of_labels = 1, serial_number = "", remove_after=""):
 		data_folder = self.get_plugin_data_folder();
-		payload = dict(name=filename, path=data_folder, origin="local", file=filename + ".gcode", time= time.time(), label_type=label_type)
+		self._labels_printed_this_roll= self._labels_printed_this_roll + number_of_labels
+		self._total_labels_printed_count = self._total_labsl_printed_count + number_of_labels
+
+		payload = dict(name=filename,
+		               path=data_folder,
+		               origin="local",
+		               file=filename + ".gcode",
+		               time= time.time(),
+		               label_type=label_type,
+		               number_of_labels_printed=number_of_labels,
+		               labels_printed_this_roll = self._labels_printed_this_roll,
+		               total_labels_printed=self._total_labels_printed_count,
+		               serial_number=serial_number,
+		               remove_after=remove_after)
 		self._event_bus.fire(Events.PRINT_DONE, payload);
+
 		# Custom event
 		self._event_bus.fire("LabelPrintDone", payload);
+
 		# And notify the web clients
 		payload = dict(eventEvent="PrintDone",message="Label Printed", filename=filename, job_id=job_id, label_type=label_type)
 		self._plugin_manager.send_plugin_message(self._identifier, payload)

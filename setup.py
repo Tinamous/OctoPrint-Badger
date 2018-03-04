@@ -33,7 +33,7 @@ plugin_url = "https://github.com/Tinamous/OctoPrint-Badger"
 plugin_license = "AGPLv3"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = ['pycups', 'reportlab']
+plugin_requires = ['pycups', 'reportlab', 'RPi.GPIO']
 
 ### --------------------------------------------------------------------------------------------------------------------
 ### More advanced options that you usually shouldn't have to touch follow after this point

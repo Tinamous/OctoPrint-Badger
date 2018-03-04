@@ -97,6 +97,73 @@ class SuperLabel():
 			self._logger.error("Error creating text label. Error: {0}".format(e))
 			return None
 
+	# Create a members name badge label
+	def create_name_badge_label(self, name, comment):
+		self._logger.info("Name badge label for : {0}".format(name))
+
+		try:
+			#####################################################
+			# Use pdfgen to create our badge...
+			#####################################################
+			filename = self._data_folder + "/large-address-donothack.pdf"
+			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
+
+			# Configurable X-Offset to improve alignment
+			x_align = self._x_offset
+
+			# Do Not Hack...
+			yPosition = 26 * mm + self._y_offset
+			text = "DO NOT HACK"
+			c.setFont("Helvetica-Bold", 30)
+			# So we can right align the dates to this.
+			do_not_hack_width = c.stringWidth(text, "Helvetica-Bold", 30)
+			# Actual position for right aligntment
+			do_not_hack_width = do_not_hack_width + x_align
+			c.drawString(x_align, yPosition, text, mode=None)
+
+		except Exception as e:
+			self._logger.error("Error creating name badge label. Error: {0}".format(e))
+			return None
+
+	# Create a "HACK ME!" label
+	def create_hack_me_label(self, label_serial_number, removeAfter):
+
+		try:
+			#####################################################
+			# Use pdfgen to create our badge...
+			#####################################################
+			filename = self._data_folder + "/large-address-donothack.pdf"
+			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
+
+			# Configurable X-Offset to improve alignment
+			x_align = self._x_offset
+
+			# Do Not Hack...
+			yPosition = 26 * mm + self._y_offset
+			text = "HACK ME!"
+			c.setFont("Helvetica-Bold", 30)
+			# So we can right align the dates to this.
+			do_not_hack_width = c.stringWidth(text, "Helvetica-Bold", 30)
+			# Actual position for right aligntment
+			do_not_hack_width = do_not_hack_width + x_align
+			c.drawString(x_align, yPosition, text, mode=None)
+
+			# Date Left
+			yPosition = 19 * mm + self._y_offset
+			c.setFont("Helvetica", 12)
+			c.drawString(x_align, yPosition, "Date Left:", mode=None)
+
+			# Item Details (RHS of member)
+			c.setFont("Helvetica", 10)
+			item_number = "#: {0}".format(label_serial_number)
+			x_position = self.get_right_align_x_position(c, item_number, "Helvetica", 10, do_not_hack_width)
+			c.drawString(x_position, yPosition, item_number, mode=None)
+
+		except Exception as e:
+			self._logger.error("Error creating hack me label. Error: {0}".format(e))
+			return None
+
+
 	##~~ Helpers
 
 	def get_right_align_x_position(self, canvas, text, font, font_size, align_to):

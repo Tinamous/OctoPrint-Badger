@@ -19,6 +19,9 @@ $(function() {
         self.printerInfo = ko.observable();
         self.textBlock = ko.observable("");
 
+        self.badgerName = ko.observable("");
+        self.badgerComment = ko.observable("");
+
         self.notLoggedIn = ko.computed(function() {
             return !self.loginStateViewModel.isUser();
         });
@@ -82,6 +85,8 @@ $(function() {
 
         self.onUserLoggedIn = function(user) {
             self.getPrintQueue();
+            self.badgerName(user.settings.badgerName);
+            self.badgerComment(user.settings.badgerComment);
         };
 
         self.tagSeen = function() {
@@ -101,6 +106,18 @@ $(function() {
             console.log("Requesting print members box label")
             self.status("Printing...");
             OctoPrint.simpleApiCommand(self.pluginId, "PrintMembersBox", {}, {});
+        };
+
+        self.printNameBadge = function() {
+            console.log("Requesting print members name badge")
+            self.status("Printing...");
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintNameBadge", {}, {});
+        };
+
+        self.printHackMe = function() {
+            console.log("Requesting print hack me label")
+            self.status("Printing...");
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintHackMe", {}, {});
         };
 
         self.printHowToRegister = function() {
@@ -147,7 +164,13 @@ $(function() {
         self.labelsRefilled = function() {
             console.log("Setting labels refilled")
             OctoPrint.simpleApiCommand(self.pluginId, "LabelsRefilled", {}, {});
-        }
+        };
+
+        self.updateBadgerSettings = function() {
+            console.log("Update Badger Settings")
+             var payload = { badgerName:self.badgerName(),badgerComment:self.badgerComment() };
+            OctoPrint.simpleApiCommand(self.pluginId, "UpdateNameBadge", payload, {});
+        };
 
         self._showpopup = function(options, eventListeners) {
             self._closePopup();

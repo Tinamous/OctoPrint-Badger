@@ -86,6 +86,16 @@ class CupsLabelPrinter():
 		filename = self._label.create_text_label(text)
 		return self.print_pdf(filename)
 
+	def print_name_badge_label(self, name, comment):
+		self._logger.info("Cups Label printer printing name badge label...")
+		filename = self._label.create_name_badge_label(name, comment)
+		return self.print_pdf(filename)
+
+	def print_hack_me_label(self, label_serial_number, removeAfter):
+		self._logger.info("Cups Label printer printing hack me label...")
+		filename = self._label.create_hack_me_label(label_serial_number, removeAfter)
+		return self.print_pdf(filename)
+
 	# Print the "How to register label" for users that are not registered
 	# with the system.
 	def print_how_to_register(self, fob_id):

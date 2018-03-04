@@ -1,8 +1,10 @@
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import mm
-
 import datetime
-from .SuperLabel import SuperLabel
+
+from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas
+
+from octoprint_Badger.Labels.SuperLabel import SuperLabel
+
 
 # Defines the large label (100x54). Dymo: 99014
 class ShippingLabel(SuperLabel):
