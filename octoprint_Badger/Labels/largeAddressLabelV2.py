@@ -151,7 +151,7 @@ class LargeAddressLabelV2(SuperLabel):
 			#c.drawString(x_align, yPosition, text, mode=None)
 
 			# Contact
-			yPosition = 14 * mm + self._y_offset
+			yPosition = 2 * mm + self._y_offset
 			c.setFont("Helvetica", 14)
 			c.drawString(x_align, yPosition, contact, mode=None)
 

@@ -1,3 +1,5 @@
+import datetime
+
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 
@@ -9,6 +11,11 @@ class SuperLabel():
 		self._date_format = date_format
 		self._x_offset = x_offset * mm
 		self._y_offset = y_offset * mm
+
+		# 99012 is 36mm x 89.
+		# Assume sub-class label the same unless it's overridden.
+		self._width = 89 * mm
+		self._height = 36 * mm
 
 	# Returns filename of the created label
 	def create_register_label(self, fob_id):
@@ -105,59 +112,84 @@ class SuperLabel():
 			#####################################################
 			# Use pdfgen to create our badge...
 			#####################################################
-			filename = self._data_folder + "/large-address-donothack.pdf"
+			filename = self._data_folder + "/large-address-name-badge.pdf"
 			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
 			# Configurable X-Offset to improve alignment
 			x_align = self._x_offset
 
-			# Do Not Hack...
-			yPosition = 26 * mm + self._y_offset
-			text = "DO NOT HACK"
-			c.setFont("Helvetica-Bold", 30)
+
+			## Taken from original Badger label (tagreader4.py)
+			# Name...
+			font_size = 60
 			# So we can right align the dates to this.
-			do_not_hack_width = c.stringWidth(text, "Helvetica-Bold", 30)
-			# Actual position for right aligntment
-			do_not_hack_width = do_not_hack_width + x_align
-			c.drawString(x_align, yPosition, text, mode=None)
+			name_width = c.stringWidth(name, "Helvetica-Bold", font_size)
+			# Shring the font size so it fits.
+			if name_width > (self._width * 0.9):
+				font_size = font_size  * self._width * 0.9 / name_width
+
+			yPosition = 26 * mm + self._y_offset
+			c.setFont("Helvetica-Bold", font_size )
+			c.drawCentredString(self._width/2, 70-font_size/2,name)
+
+			# Comment
+			yPosition = 14 * mm + self._y_offset
+			c.setFont("Helvetica", 14)
+			c.translate(self._width / 2, 15)
+			comment_width = c.stringWidth(comment, "Helvetica-Bold", 14)
+			if (comment_width> (self._width * 0.9)):
+				hScale = self._width * 0.9 / comment_width
+			else:
+				hScale = 1
+
+			c.scale(hScale, 1)
+			c.drawCentredString(0, 0, comment)
+
+			c.showPage()
+			c.save()
+
+			return filename
 
 		except Exception as e:
 			self._logger.error("Error creating name badge label. Error: {0}".format(e))
 			return None
 
 	# Create a "HACK ME!" label
-	def create_hack_me_label(self, label_serial_number, removeAfter):
+	def create_hack_me_label(self, label_serial_number, remove_after):
 
 		try:
 			#####################################################
 			# Use pdfgen to create our badge...
 			#####################################################
-			filename = self._data_folder + "/large-address-donothack.pdf"
+			filename = self._data_folder + "/large-address-hack-me.pdf"
 			c = canvas.Canvas(filename, pagesize=(self._width, self._height))
 
 			# Configurable X-Offset to improve alignment
 			x_align = self._x_offset
 
 			# Do Not Hack...
-			yPosition = 26 * mm + self._y_offset
+			yPosition = 18 * mm + self._y_offset
 			text = "HACK ME!"
-			c.setFont("Helvetica-Bold", 30)
-			# So we can right align the dates to this.
-			do_not_hack_width = c.stringWidth(text, "Helvetica-Bold", 30)
-			# Actual position for right aligntment
-			do_not_hack_width = do_not_hack_width + x_align
-			c.drawString(x_align, yPosition, text, mode=None)
+			c.setFont("Helvetica-Bold", 45)
+			c.drawCentredString(self._width/2, yPosition, text)
 
 			# Date Left
-			yPosition = 19 * mm + self._y_offset
+			date_now = datetime.date.today().strftime(self._date_format)
+			date_left_message = "Date Left: {0}".format(date_now)
+			yPosition =  2* mm + self._y_offset
 			c.setFont("Helvetica", 12)
-			c.drawString(x_align, yPosition, "Date Left:", mode=None)
+			c.drawString(x_align, yPosition, date_left_message, mode=None)
 
-			# Item Details (RHS of member)
-			c.setFont("Helvetica", 10)
+			# Item Details
 			item_number = "#: {0}".format(label_serial_number)
-			x_position = self.get_right_align_x_position(c, item_number, "Helvetica", 10, do_not_hack_width)
-			c.drawString(x_position, yPosition, item_number, mode=None)
+			yPosition = 8 * mm + self._y_offset
+			c.setFont("Helvetica", 12)
+			c.drawString(x_align, yPosition, item_number, mode=None)
+
+			c.showPage()
+			c.save()
+
+			return filename
 
 		except Exception as e:
 			self._logger.error("Error creating hack me label. Error: {0}".format(e))

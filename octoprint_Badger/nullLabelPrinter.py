@@ -58,8 +58,8 @@ class NullLabelPrinter():
 		self._logger.warn("Name badge label saved to: {0}".format(filename))
 		return 5
 
-	def print_hack_me_label(self, label_serial_number, removeAfter):
-		filename = self._label.create_hack_me_label(label_serial_number, removeAfter)
+	def print_hack_me_label(self, label_serial_number, remove_after):
+		filename = self._label.create_hack_me_label(label_serial_number, remove_after)
 		self._logger.warn("Hack me label saved to: {0}".format(filename))
 		return 6
 

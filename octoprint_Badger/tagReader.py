@@ -89,10 +89,18 @@ class TagReader():
 				payload = dict(tagId=tag)
 				self._event_bus.fire("RfidTagSeen", payload)
 				self._last_tag = tag
+				self._tag_removed_count = 0
 			else:
-				# Clear last tag ready for a new one...
-				self._last_tag = None
-				self._logger.info("Tag removed")
+				# Only mark the tag as removed after a few failed reads
+				# to prevent one missed read firing new tag seen events.
+				self._tag_removed_count +=1
+				if self._tag_removed_count > 6:
+					self._tag_removed_count = 0
+					# Clear last tag ready for a new one...
+					if self._last_tag:
+						self._logger.info("Tag removed")
+
+					self._last_tag = None
 		except IOError as e:
 			self._logger.exception("Error reading tag. Exception: {0}".format(e))
 		# TODO: Disable after too many errors

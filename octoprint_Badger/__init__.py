@@ -7,6 +7,7 @@ import logging
 import logging.handlers
 import time
 import sys
+import sqlite3
 
 import octoprint.plugin
 from octoprint.events import eventManager, Events
@@ -19,6 +20,8 @@ from .nullTagReader import NullTagReader
 
 from .mockGPIO import MockGPIO
 from .piGPIO import PiGPIO
+
+from .dataAaccess import DataAccess
 
 class BadgerPlugin(octoprint.plugin.StartupPlugin,
                    octoprint.plugin.ShutdownPlugin,
@@ -34,6 +37,7 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		self._gpio = None
 		# TODO: Initialize these from database.
 		self._labels_printed_this_roll = 0
+		self._labels_low_warn_at = 250
 		self._total_labels_printed_count = 0
 
 	def initialize(self):
@@ -49,10 +53,15 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		self.initialize_tag_reader()
 		# Initialze GPIO handling
 		self.initialize_gpio()
+		# Initialize the database
+		self.initialize_data_access()
 
 	def on_shutdown(self):
 		self._logger.info("Badger on_shutdown...")
 		self._reader.on_shutdown()
+		self._gpio.set_left_button_led(0)
+		self._gpio.set_right_button_led(0)
+		self._gpio.set_alive_led(0)
 		self._logger.info("Badger on_shutdown completed.")
 
 	##~~ SettingsPlugin mixin
@@ -281,6 +290,15 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		elif event == "BothButtonsPressed":
 			self.handle_both_buttons_ressed(payload)
 
+
+	##~~ Data Access
+
+	def initialize_data_access(self):
+		self._logger.info("Initialize Data Access")
+		data_folder = self.get_plugin_data_folder();
+		self._database = DataAccess(self._logger, self._settings, data_folder)
+		self._logger.info("Done init. Data Access")
+
 	##~~ Printer handling
 
 	def initialize_printers(self):
@@ -340,10 +358,12 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		badgerComment = user_settings.get("badgerComment")
 
 		if not badgerName:
-			self._logger.error("Can't print name badge, no badger name specified")
+			self._logger.error("no badger name specified, using display name")
 			# for now, use the users setting until they have set their badger name.
 			badgerName = displayName
-			return
+
+		if not badgerComment:
+			badgerComment = "Show me how to configure the badger"
 
 		try:
 			self._logger.info("Printing name badge label......")
@@ -355,23 +375,23 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 			self._logger.error("Failed to print name badge label. Error: {0}".format(e))
 			self.fire_print_failed("name badge", label_type)
 
-	def print_hack_me_label(self):
+	def print_hack_me_label(self, user=None):
 		self._logger.info("Printing hack me label.")
 		label_type = "Hack Me"
 
 		try:
 			# Compute when the member should remove the item.
 			# Set in plugin config. Maybe user dependant as well?
-			removeAfterMonths = int(self._settings.get(["removeAfterMonths"]))
-			removeAfter = datetime.date.today() + datetime.timedelta(removeAfterMonths * 365 / 12)
+			remove_after_months = int(self._settings.get(["removeAfterMonths"]))
+			remove_after = datetime.date.today() + datetime.timedelta(remove_after_months  * 365 / 12)
 
 			# Stores the label details and returns the serial number generated
-			label_serial_number = self.get_label_serial_number(None, removeAfter);
+			label_serial_number = self.get_label_serial_number(user, remove_after);
 
 			self.fire_print_started("hack me")
-			job_id = self._labeller.print_hack_me_label(label_serial_number, removeAfter)
-			self.log_label_printed(job_id, label_type, label_serial_number, None, removeAfter);
-			self.fire_print_done("hack me", job_id, label_type, 1, label_serial_number, removeAfter)
+			job_id = self._labeller.print_hack_me_label(label_serial_number, remove_after)
+			self.log_label_printed(job_id, label_type, label_serial_number, user, remove_after);
+			self.fire_print_done("hack me", job_id, label_type, 1, label_serial_number, remove_after)
 		except Exception as e:
 			self._logger.error("Failed to print hack me label. Error: {0}".format(e))
 			self.fire_print_failed("hack me", label_type)
@@ -406,7 +426,14 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		self._labels_printed_this_roll = 0
 		# TODO: Update the database.
 
+	def check_labels_remaining(self):
+		self._logger.info("TODO: Check labels remaining on roll")
+		## 99012 has 260 labels on a roll.
+		if self._labels_printed_this_roll > self._labels_low_warn_at:
+			self._logger.warn("Running low on labels. Tell somebody....")
+
 	##~~ RFID Tag Handling
+
 	def initialize_tag_reader(self):
 		self._logger.info("Initialize RFID reader")
 		self._reader = TagReader(self._logger, self._settings, self._event_bus)
@@ -490,7 +517,7 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		action = self._settings.get(["bothButtonsOption"])
 		# bothButtonsOptions = ["HackMe", "LabelsReplaced"],
 		if action == "HackMe":
-			self.print_hack_me_label()
+			self.print_hack_me_label(None)
 		elif action == "LabelsReplaced":
 			self.labels_refilled()
 		else:
@@ -506,13 +533,22 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 
 	# Set a serial number for the item stored (i.e. from the databsae.
 	# user mignt be null if printing a HACK ME item.
-	def get_label_serial_number(self, user, removeAfter):
+	def get_label_serial_number(self, user, remove_after):
 		# TODO: Store a new entry for a do not hack label
 		# created by user... and return the number of the label
 
-		label_number = 14
+		label_number = self._database.get_serial_number()
+		self._logger.info("Got label number: {0}".format(label_number))
 		label_number_prefix = self._settings.get(["labelSerialNumberPrefix"])
-		return "{0}-{1}".format(label_number_prefix, label_number)
+		serial_number = "{0}-{1}".format(label_number_prefix, label_number)
+
+		user_name = ""
+		if user:
+			user_name = user["name"]
+
+		self._database.store_item(serial_number, user_name, remove_after)
+
+		return serial_number
 
 	##~~ Notifications
 	def fire_print_started(self, filename):
@@ -522,8 +558,8 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 
 	def fire_print_done(self, filename, job_id, label_type, number_of_labels = 1, serial_number = "", remove_after=""):
 		data_folder = self.get_plugin_data_folder();
-		self._labels_printed_this_roll= self._labels_printed_this_roll + number_of_labels
-		self._total_labels_printed_count = self._total_labsl_printed_count + number_of_labels
+		self._labels_printed_this_roll = self._labels_printed_this_roll + number_of_labels
+		self._total_labels_printed_count = self._total_labels_printed_count + number_of_labels
 
 		payload = dict(name=filename,
 		               path=data_folder,
@@ -545,12 +581,15 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		payload = dict(eventEvent="PrintDone",message="Label Printed", filename=filename, job_id=job_id, label_type=label_type)
 		self._plugin_manager.send_plugin_message(self._identifier, payload)
 
+		self.check_labels_remaining()
+
 	def fire_print_failed(self, filename, label_type):
 		data_folder = self.get_plugin_data_folder();
 		payload = dict(name=filename, path=data_folder, origin="local", file= filename + ".gcode")
 		self._event_bus.fire(Events.PRINT_FAILED, payload)
 		payload = dict(eventEvent="PrintFailed", message="Error printing label", label_type=label_type)
 		self._plugin_manager.send_plugin_message(self._identifier, payload)
+		self.check_labels_remaining()
 
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py

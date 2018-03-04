@@ -134,8 +134,8 @@ class LargeAddressLabel(SuperLabel):
 			# Now shrink font until name fits...
 			fontSize = 60
 			nameWidth = c.stringWidth(displayName, "Helvetica-Bold", 60)
-			if (nameWidth > (self._width * 0.9)):
-				fontSize = fontSize * self._width * 0.9 / nameWidth
+			if (nameWidth > (self._width * 0.8)):
+				fontSize = fontSize * self._width * 0.8 / nameWidth
 
 			c.setFont("Helvetica-Bold", fontSize)
 			c.drawCentredString(self._width / 2, 75 - fontSize / 2, displayName)
@@ -156,7 +156,7 @@ class LargeAddressLabel(SuperLabel):
 			#c.drawString(x_align, yPosition, text, mode=None)
 
 			# Contact
-			yPosition = 14 * mm + self._y_offset
+			yPosition = 2 * mm + self._y_offset
 			c.setFont("Helvetica", 14)
 			c.drawString(x_align, yPosition, contact, mode=None)
 

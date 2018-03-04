@@ -79,8 +79,8 @@ class LabelPrinter():
 		job_id = self._actualLabelPrinter.print_name_badge_label(name, comment)
 		return job_id
 
-	def print_hack_me_label(self, label_serial_number):
-		job_id = self._actualLabelPrinter.print_hack_me_label(label_serial_number)
+	def print_hack_me_label(self, label_serial_number, remove_after):
+		job_id = self._actualLabelPrinter.print_hack_me_label(label_serial_number, remove_after)
 		return job_id
 
 	# Print how to register label for when the user has tagged the rfid sensor

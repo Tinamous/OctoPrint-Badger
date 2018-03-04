@@ -91,9 +91,9 @@ class CupsLabelPrinter():
 		filename = self._label.create_name_badge_label(name, comment)
 		return self.print_pdf(filename)
 
-	def print_hack_me_label(self, label_serial_number, removeAfter):
+	def print_hack_me_label(self, label_serial_number, remove_after):
 		self._logger.info("Cups Label printer printing hack me label...")
-		filename = self._label.create_hack_me_label(label_serial_number, removeAfter)
+		filename = self._label.create_hack_me_label(label_serial_number, remove_after)
 		return self.print_pdf(filename)
 
 	# Print the "How to register label" for users that are not registered
