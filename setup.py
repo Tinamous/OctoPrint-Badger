@@ -14,11 +14,11 @@ plugin_package = "octoprint_Badger"
 plugin_name = "OctoPrint-Badger"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "0.2.2"
+plugin_version = "0.2.3"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
-plugin_description = """Print badges from OctoPrint"""
+plugin_description = """Print labels (name badges) from OctoPrint"""
 
 # The plugin's author. Can be overwritten within OctoPrint's internal data via __plugin_author__ in the plugin module
 plugin_author = "Tinamous"

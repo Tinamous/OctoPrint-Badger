@@ -60,7 +60,6 @@ class DataAccess:
 
 	def update_new_roll(self):
 		sql = "SELECT id, roll_number FROM label_counter"
-		rows = self.query(sql)
 
 		if rows:
 			# TODO: Ensure only a single row.

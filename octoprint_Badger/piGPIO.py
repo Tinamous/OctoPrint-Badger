@@ -23,9 +23,8 @@ class PiGPIO:
 		self._right_led_mode = 0
 
 		self._both_puttons_pressed = False
-		self._leds_flash_on = False
-		self._timer = RepeatedTimer(0.25, self.timer_tick, None, None, True)
-		self._timer.start()
+		self._leds_flash_on = True
+		self._timer = RepeatedTimer(0.25, self.timer_tick)
 
 	def initialize(self):
 		self._logger.info("Init RasPi GPIO...")
@@ -49,6 +48,7 @@ class PiGPIO:
 		self.set_alive_led(1)
 		self.set_left_button_led(1)
 		self.set_right_button_led(1)
+		self._timer.start()
 
 	def set_alive_led(self, state):
 		self._logger.info("Setting Alive LED")
@@ -62,7 +62,7 @@ class PiGPIO:
 
 	# State: 0 - off, 1 - on, 2 - blink
 	def set_left_button_led(self, state):
-		self._logger.info("Setting left button LED")
+		self._logger.info("Setting left button LED state: {0}".format(state))
 		self._left_led_mode = state
 		self.set_led_state(self._left_led_pin, state)
 
@@ -73,7 +73,7 @@ class PiGPIO:
 
 	# State: 0 - off, 1 - on, 2 - blink
 	def set_right_button_led(self, state):
-		self._logger.info("Setting right button LED")
+		self._logger.info("Setting right button LED state: {0}".format(state))
 		self._right_led_mode = state
 		self.set_led_state(self._right_led_pin, state)
 

@@ -440,12 +440,12 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 		self._reader.initialize()
 
 	def handle_rfid_tag_seen_event(self, payload):
-		# set the LEDs flashing to show we are processing the tag
-		self._gpio.set_left_button_led(2)
-		self._gpio.set_right_button_led(2)
-
 		tag_id = payload["tagId"]
 		self._logger.info("RFID Tag (Event) Seen: " + tag_id)
+
+		# set the LEDs flashing to show we are processing the tag
+		self._gpio.set_left_button_led(0)
+		self._gpio.set_right_button_led(0)
 
 		# Raise the plugin message for an RfidTagSeen.
 		pluginData = dict(eventEvent="RfidTagSeen", eventPayload=payload)
@@ -534,9 +534,6 @@ class BadgerPlugin(octoprint.plugin.StartupPlugin,
 	# Set a serial number for the item stored (i.e. from the databsae.
 	# user mignt be null if printing a HACK ME item.
 	def get_label_serial_number(self, user, remove_after):
-		# TODO: Store a new entry for a do not hack label
-		# created by user... and return the number of the label
-
 		label_number = self._database.get_serial_number()
 		self._logger.info("Got label number: {0}".format(label_number))
 		label_number_prefix = self._settings.get(["labelSerialNumberPrefix"])
